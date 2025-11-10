@@ -3,34 +3,46 @@ import time
 import math
 
 
-def power_svd(A, iters):
+def power_svd(A, iters, epsilon = 1e-10):
     mu, sigma = 0, 1
-    x = np.random.normal(mu, sigma, size=A.shape[1])
-    B = A.T.dot(A)
+    n, m = A.shape
+    x = np.random.normal(mu, sigma, size=min(n, m))
+    last_x = None
+    current_x = x
+    n, m = A.shape
+    if n > m:
+        B = A.T.dot(A)
+    else:
+        B = A.dot(A.T)
     for i in range(iters):
-        new_x = B.dot(x)
-        x = new_x
-    v = x / np.linalg.norm(x)
-    sigma = np.linalg.norm(A.dot(v))
-    u = A.dot(v) / sigma
+        last_x = current_x
+        current_x = B.dot(last_x)
+        current_x /= np.linalg.norm(current_x)
+
+
+    if n > m:
+        v = current_x
+        sigma = np.linalg.norm(A.dot(v))
+        u = A.dot(v) / sigma
+    else:
+        u = current_x
+        sigma = np.linalg.norm(A.T.dot(u))
+        v = A.T.dot(u) / sigma
+        
     return np.reshape(
         u, (A.shape[0], 1)), sigma, np.reshape(
         v, (A.shape[1], 1))
 
 
 def main():
-    A = np.array([[1, 0, 2], [3, 4, 0], [1, 2, 1]])
-    rank = np.linalg.matrix_rank(A)
+    A = np.array([[7, 2],
+                  [2, 4],
+                  [0, 1]], dtype=float)
+    n, m = A.shape
+    rank = min(n, m)
     U = np.zeros((A.shape[0], 1))
     S = []
     V = np.zeros((A.shape[1], 1))
-
-    # Define the number of iterations ???
-    delta = 0.001
-    epsilon = 0.99
-    lamda = 1
-    iterations = int(math.log(
-        4 * math.log(2 * A.shape[1] / delta) / (epsilon * delta)) / (2 * lamda))
     
     iterations = 100
 
@@ -40,13 +52,16 @@ def main():
         U = np.hstack((U, u))
         S.append(sigma)
         V = np.hstack((V, v))
-        A = A - u.dot(v.T).dot(sigma)
+        A = A - sigma * np.outer(u, v)
 
     
     print("-------------Power method-------------")
     print("Left Singular Vectors are: \n", U[:, 1:], "\n")
     print("Sigular Values are: \n", S, "\n")
-    print("Right Singular Vectors are: \n", V[:, 1:])
+    print("Right Singular Vectors are: \n", V[:, 1:].T)
+
+    A = U[:, 1:] @ np.diag(S) @ V[:, 1:].T
+    print("\nOriginal matrix reconstructed: \n", A)
 
 
 if __name__ == '__main__':

@@ -1,6 +1,7 @@
 import numpy as np
 
-A = np.array([[7,2,9], [1,2,3], [5,3,1]])
+A =np.array([[1, 2, 1],
+                  [2, 3, 0]], dtype=float)
 
 np.set_printoptions(precision=2)
 
