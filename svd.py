@@ -1,9 +1,9 @@
 import numpy as np
 
-A =np.array([[1, 2, 1],
-                  [2, 3, 0]], dtype=float)
-
+A = np.array([[1, 2, 1, 1], [2, 1, 4, 2], [0, 0, 0, 0]])
 np.set_printoptions(precision=2)
+
+print(np.linalg.eig(A.dot(A.T)))
 
 # Numpy SVD for comparison
 U_svd, S_svd, Vt_svd = np.linalg.svd(A)

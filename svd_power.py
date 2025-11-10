@@ -35,9 +35,7 @@ def power_svd(A, iters, epsilon = 1e-10):
 
 
 def main():
-    A = np.array([[7, 2],
-                  [2, 4],
-                  [0, 1]], dtype=float)
+    A = np.array([[1, 2, 1], [2, 1, 4], [0, 1, 3], [1, 2, 0]])
     n, m = A.shape
     rank = min(n, m)
     U = np.zeros((A.shape[0], 1))
