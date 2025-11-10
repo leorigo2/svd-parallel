@@ -2,8 +2,9 @@
 #include <stdio.h>
 #include <math.h>
 
-#define N 4  // Example size; can be changed
-#define M 3
+#define N 3  // Example size; can be changed
+#define M 4
+#define min(a, b) ((a) < (b) ? (a) : (b))
 
 void QR_Decomposition(size_t n, double A[][n], double Q[][n], double R[][n]) {
     for (size_t i = 0; i < n; i++)
@@ -191,7 +192,7 @@ void QR_SVD(double A[][N]){
             }
         }
     }
-
+    int rank = min(N, M);
     printf("Eigenvalues:");
     for (size_t i = 0; i < N; i++){
         printf("\n");
@@ -203,13 +204,13 @@ void QR_SVD(double A[][N]){
     printf("\n\nLeft singular values:");
     for (size_t i = 0; i < M; i++){
         printf("\n");
-        for (size_t j = 0; j < M; j++){
+        for (size_t j = 0; j < rank; j++){
             printf("%f  ", U[i][j]);
         }
     }
 
     printf("\n\nRight singular values:");
-    for (size_t i = 0; i < N; i++){
+    for (size_t i = 0; i < rank; i++){
         printf("\n");
         for (size_t j = 0; j < N; j++){
             printf("%f  ", V[j][i]);
@@ -222,9 +223,10 @@ void QR_SVD(double A[][N]){
 int main(){
     printf("here");
     double A[M][N] = {
-        {1, 2, 1, 1},
-        {2, 1, 4, 2},
-        {0, 0, 0, 0}
+        {1, 2, 1},
+        {2, 1, 4},
+        {3, 10, 1},
+        {1, 2, 0}
     };
    
     QR_SVD(A);
