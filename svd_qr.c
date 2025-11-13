@@ -47,6 +47,7 @@ void QR_Decomposition(size_t n, double A[][n], double Q[][n], double R[][n]) {
 
 
 void QR_SVD(double A[][N]){
+    double Anew[M][M] = {0};
     double AT[N][M] = {0};
     double AAt[M][M] = {0};
     double AtA[N][N] = {0};
@@ -118,7 +119,10 @@ void QR_SVD(double A[][N]){
         QR_Decomposition(M, AAt, Q_AAt, R_AAt);
 
         // Step 2: New A = R @ Q
-        double Anew[M][M] = {0};
+        for(size_t i=0;i<M;i++)
+            for(size_t j=0;j<M;j++)
+                Anew[i][j] = 0.0;
+
         for (size_t i = 0; i < M; i++){
             for (size_t j = 0; j < M; j++){
                 for (size_t k = 0; k < M; k++){
@@ -161,7 +165,10 @@ void QR_SVD(double A[][N]){
         QR_Decomposition(N, AtA, Q_AtA, R_AtA);
 
         // Step 2: New A = R @ Q
-        double Anew[N][N] = {0};
+        for(size_t i=0;i<N;i++)
+            for(size_t j=0;j<N;j++)
+                Anew[i][j] = 0.0;
+                
         for (size_t i = 0; i < N; i++){
             for (size_t j = 0; j < N; j++){
                 for (size_t k = 0; k < N; k++){
@@ -177,7 +184,9 @@ void QR_SVD(double A[][N]){
         }
 
         // Step 3: accumulate eigenvectors: V = V * Q
-        double Vtemp[N][N] = {0};
+        for(size_t i=0;i<N;i++)
+            for(size_t j=0;j<N;j++)
+                Vtemp[i][j] = 0.0;
         for (size_t i = 0; i < N; i++){
             for (size_t j = 0; j < N; j++){
                 for (size_t k = 0; k < N; k++){
