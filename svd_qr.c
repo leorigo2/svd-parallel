@@ -17,7 +17,7 @@ void QR_Decomposition(size_t n, double A[][n], double Q[][n], double R[][n]) {
     MPI_Comm_size(MPI_COMM_WORLD, &comm_sz);
     MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
 
-    double *sub_r = (double *)malloc(sizeof(double) * count)
+    double *sub_r = (double *)malloc(sizeof(double) * count);
 
     for(int i = 0; i < M; i++) // one row per process
         MPI_Scatter(R[i], count, MPI_DOUBLE, sub_r, count, MPI_DOUBLE, 0, MPI_COMM_WORLD); 
