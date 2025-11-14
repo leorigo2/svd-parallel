@@ -24,12 +24,10 @@ void QR_Decomposition(size_t n, double A[][n], double Q[][n], double R[][n]) {
 
     free(sub_r);
 
-    if(my_rank == 0){
-        printf("R: \n")
-        for(int i = 0; i < M; i++){
-            for(int j = 0; j < N; j++){
-                printf("%f", R[i][j]);
-            }
+    printf("R: \n")
+    for(int i = 0; i < M; i++){
+        for(int j = 0; j < N; j++){
+            printf("%f", R[i][j]);
         }
     }
 
