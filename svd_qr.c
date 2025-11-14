@@ -17,7 +17,7 @@ void QR_Decomposition(size_t n, double A[][n], double Q[][n], double R[][n]) {
         MPI_Scatter(R[i], count, MPI_DOUBLE, sub_r, count, MPI_DOUBLE, 0, MPI_COMM_WORLD); 
     
     for (size_t i = 0; i < count; i++)
-            sub_r[i] = 0.0;
+            sub_r[i] = 1.0;
     
     for(int i = 0; i < M; i++)
         MPI_Gather(sub_r, count, MPI_DOUBLE, R[i], count, MPI_DOUBLE, 0, MPI_COMM_WORLD);
@@ -25,6 +25,7 @@ void QR_Decomposition(size_t n, double A[][n], double Q[][n], double R[][n]) {
     free(sub_r);
 
     if(my_rank == 0){
+        printf("R: \n")
         for(int i = 0; i < M; i++){
             for(int j = 0; j < N; j++){
                 printf("%f", R[i][j]);
