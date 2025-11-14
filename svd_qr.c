@@ -55,7 +55,7 @@ void QR_Decomposition(size_t n, double A[][n], double Q[][n], double R[][n]) {
         for (size_t k = 0; k < n; k++)
             norm += u[k] * u[k];
         
-        norm = sqrt(norm);
+        norm = norm;
         R[i][i] = norm;
 
         // Normalize Q[:, i]
@@ -227,7 +227,7 @@ void QR_SVD(double A[][N]){
     for (size_t i = 0; i < N; i++){
         printf("\n");
         for (size_t j = 0; j < N; j++){
-            if(i == j) printf("%f   ", sqrt(eigvals[i][j]));
+            if(i == j) printf("%f   ", eigvals[i][j]);
         }
     }
 
