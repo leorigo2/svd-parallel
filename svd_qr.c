@@ -9,13 +9,6 @@
 
 int count = 3; // elements per cluster
 
-int comm_sz; 
-int my_rank;
-
-MPI_Init(NULL, NULL);
-MPI_Comm_size(MPI_COMM_WORLD, &comm_sz);
-MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
-
 void QR_Decomposition(size_t n, double A[][n], double Q[][n], double R[][n]) {
 
     double *sub_r = (double *)malloc(sizeof(double) * count);
@@ -252,6 +245,13 @@ void QR_SVD(double A[][N]){
 }
 
 int main(){
+
+    int comm_sz; 
+    int my_rank;
+
+    MPI_Init(NULL, NULL);
+    MPI_Comm_size(MPI_COMM_WORLD, &comm_sz);
+    MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
     printf("here");
     double A[M][N] = {
         {1, 2, 1},
