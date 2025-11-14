@@ -24,6 +24,14 @@ void QR_Decomposition(size_t n, double A[][n], double Q[][n], double R[][n]) {
 
     free(sub_r);
 
+    if(my_rank == 0){
+        for(int i = 0; i < M; i++){
+            for(int j = 0; j < N; j++){
+                printf("%f", R[i][j]);
+            }
+        }
+    }
+
     // Gram-Schmidt
     for (size_t i = 0; i < n; i++) {
         // Copy A[:, i] into u
@@ -257,8 +265,10 @@ int main(){
         {3, 10, 1},
         {1, 2, 0}
     };
-    MPI_Finalize();
+    
     QR_SVD(A);
+
+    MPI_Finalize();
     return 0;
 }
 
