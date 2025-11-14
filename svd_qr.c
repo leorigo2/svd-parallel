@@ -1,15 +1,36 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <mpi.h>
 
-#define N 3  // Example size; can be changed
-#define M 4
+#define N 3  // columns    
+#define M 4 // rows
 #define min(a, b) ((a) < (b) ? (a) : (b))
 
+int count = 3; // elements per cluster
+
 void QR_Decomposition(size_t n, double A[][n], double Q[][n], double R[][n]) {
-    for (size_t i = 0; i < n; i++)
-        for (size_t j = 0; j < n; j++)
-            R[i][j] = 0.0;
+    int comm_sz; 
+    int my_rank;
+
+    MPI_Init(NULL, NULL);
+    MPI_Comm_size(MPI_COMM_WORLD, &comm_sz);
+    MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
+
+    double *sub_r = (double *)malloc(sizeof(double) * count)
+
+    for(int i = 0; i < M; i++) // one row per process
+        MPI_Scatter(R[i], count, MPI_DOUBLE, sub_r, count, MPI_DOUBLE, 0, MPI_COMM_WORLD); 
+    
+    for (size_t i = 0; i < count; i++)
+            sub_r[i] = 0.0;
+    
+    for(int i = 0; i < M; i++)
+        MPI_Gather(sub_r, count, MPI_DOUBLE, R[i], count, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+
+    free(sub_r)
+
+    MPI_Finalize();
 
     // Gram-Schmidt
     for (size_t i = 0; i < n; i++) {
