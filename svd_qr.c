@@ -28,7 +28,7 @@ void QR_Decomposition(size_t n, double A[][n], double Q[][n], double R[][n]) {
     for(int i = 0; i < M; i++)
         MPI_Gather(sub_r, count, MPI_DOUBLE, R[i], count, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
-    free(sub_r)
+    free(sub_r);
 
     MPI_Finalize();
 
