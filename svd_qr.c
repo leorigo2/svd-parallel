@@ -24,8 +24,6 @@ void QR_Decomposition(size_t n, double A[][n], double Q[][n], double R[][n]) {
 
     free(sub_r);
 
-    MPI_Finalize();
-
     // Gram-Schmidt
     for (size_t i = 0; i < n; i++) {
         // Copy A[:, i] into u
@@ -259,7 +257,7 @@ int main(){
         {3, 10, 1},
         {1, 2, 0}
     };
-   
+    MPI_Finalize();
     QR_SVD(A);
     return 0;
 }
