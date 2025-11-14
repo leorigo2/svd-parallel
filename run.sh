@@ -1,4 +1,4 @@
-#!bin/bash
+#/bin/bash
 
 #PBS -l select=1:ncpus=4:mem=2gb
 # set max execution time
@@ -6,4 +6,4 @@
 # set the queue
 #PBS -q short_cpuQ
 module load mpich-3.2
-mpirun.actual -n 3 ./HPC4DS/PingPong/main
+mpirun.actual -n 3 ./svd-parallel/svd_qr.exe
