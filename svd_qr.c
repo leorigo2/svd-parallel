@@ -268,13 +268,13 @@ void QR_SVD(double A[][N], MPI_Comm comm){
     printf("\n\nLeft singular values:");
     for (size_t i = 0; i < M; i++){
         printf("\n");
-        for (size_t j = 0; j < rank; j++){
+        for (size_t j = 0; j < mat_rank; j++){
             printf("%f  ", U[i][j]);
         }
     }
 
     printf("\n\nRight singular values:");
-    for (size_t i = 0; i < rank; i++){
+    for (size_t i = 0; i < mat_rank; i++){
         printf("\n");
         for (size_t j = 0; j < N; j++){
             printf("%f  ", V[j][i]);
