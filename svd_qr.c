@@ -106,7 +106,7 @@ void QR_SVD(double A[][N], MPI_Comm comm){
     int iterations = 10;
     double eigvals[N][N] = {0};
 
-    if(my_rank == 0){
+    if(rank == 0){
         // Compute A transposed 
         for (size_t i = 0; i < M; i++)
         {
@@ -165,7 +165,7 @@ void QR_SVD(double A[][N], MPI_Comm comm){
         QR_Decomposition(M, AAt, Q_AAt, R_AAt, comm);
 
         // Step 2: New A = R @ Q
-        if(my_rank == 0){
+        if(rank == 0){
             for(size_t i=0;i<M;i++)
                 for(size_t j=0;j<M;j++)
                     Anew[i][j] = 0.0;
@@ -204,7 +204,7 @@ void QR_SVD(double A[][N], MPI_Comm comm){
         }
     }
 
-    if(my_rank == 0){
+    if(rank == 0){
         for (size_t i = 0; i < M; i++)
             eigvals[i][i] = AAt[i][i];
     }
@@ -216,7 +216,7 @@ void QR_SVD(double A[][N], MPI_Comm comm){
         QR_Decomposition(N, AtA, Q_AtA, R_AtA, comm);
 
         // Step 2: New A = R @ Q
-        if(my_rank == 0){
+        if(rank == 0){
             for(size_t i=0;i<N;i++)
                 for(size_t j=0;j<N;j++)
                     Anew[i][j] = 0.0;
@@ -255,7 +255,7 @@ void QR_SVD(double A[][N], MPI_Comm comm){
         }
     }
 
-    if(my_rank == 0){
+    if(rank == 0){
         int rank = min(N, M);
         printf("Eigenvalues:");
         for (size_t i = 0; i < N; i++){
