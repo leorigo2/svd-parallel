@@ -39,7 +39,7 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
 
             if(rank==0){
                 for(size_t j_q=0; j_q<n; j++)
-                    Q_col[j_q] = Q[j_Q * n + i];
+                    Q_col[j_q] = Q[j_q * n + i];
             }
 
             MPI_Bcast(Q_col, n, MPI_DOUBLE, 0, comm); 
