@@ -9,60 +9,78 @@
 
 int count = 3; // elements per cluster
 
-void QR_Decomposition(size_t n, double A[][n], double Q[][n], double R[][n]) {
+void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) {
 
-    double *sub_r = (double *)malloc(sizeof(double) * count);
+    int rank, size;
 
-    for(int i = 0; i < M; i++) // one row per process
-        MPI_Scatter(R[i], count, MPI_DOUBLE, sub_r, count, MPI_DOUBLE, 0, MPI_COMM_WORLD); 
-    
-    for (size_t i = 0; i < count; i++)
-            sub_r[i] = 1.0;
-    
-    for(int i = 0; i < M; i++)
-        MPI_Gather(sub_r, count, MPI_DOUBLE, R[i], count, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    MPI_Comm_rank(comm, &rank);
+    MPI_Comm_size(comm, &size);
 
-    free(sub_r);
+    size_t rows_per_proc = n / size;
+    size_t start = rank * rows_per_proc;
+    size_t end = (rank == size - 1) ? n : start + rows_per_proc; // the last one ends at n if the size is not a multiplo
 
-    printf("R: \n");
-    for(int i = 0; i < M; i++){
-        for(int j = 0; j < N; j++){
-            printf("%f", R[i][j]);
-        }
-    }
+    double *u_local = malloc((end - start) * sizeof(double)); 
+    double *A_col = malloc(n * sizeof(double)); 
+    double *Q_col = malloc(n * sizeof(double));
 
-    // Gram-Schmidt
-    for (size_t i = 0; i < n; i++) {
-        // Copy A[:, i] into u
-        double u[n];
-        for (size_t k = 0; k < n; k++)
-            u[k] = A[k][i];
 
-        // Subtract projections on previous Q columns
-        for (size_t j = 0; j < i; j++) {
-            double dot = 0.0;
-            for (size_t k = 0; k < n; k++)
-                dot += Q[k][j] * A[k][i];
-            R[j][i] = dot;
-
-            for (size_t k = 0; k < n; k++)
-                u[k] -= R[j][i] * Q[k][j];
-        }
-
-        // Compute R[i][i] = ||u||
-        double norm = 0.0;
-        for (size_t k = 0; k < n; k++)
-            norm += u[k] * u[k];
+    for(size_t i = 0; i < n; i++){ // one column per process
         
-        norm = norm;
-        R[i][i] = norm;
-
-        // Normalize Q[:, i]
-        for (size_t k = 0; k < n; k++){
-            if(norm == 0) continue; 
-            Q[k][i] = u[k] / norm;
+        if(rank==0){
+            for(size_t j=0; j<n; j++)
+                A_col[j] = A[j * n + i];
         }
+        
+        MPI_Bcast(A_col, n, MPI_DOUBLE, 0, comm); 
+    
+        for (size_t k = start; k < end; k++)
+            u_local[end - start] = A_col[k];
+
+        for(size_t j=0; j<n; j++){
+
+            if(rank==0){
+                for(size_t j=0; j<n; j++)
+                    Q_col[j] = Q[j * n + i];
+            }
+
+            MPI_Bcast(Q_col, n, MPI_DOUBLE, 0, comm); 
+
+            double local_dot = 0.0;
+
+            for(size_t i_dot=start; i_dot<end; i_dot++){
+                local_dot += sub_q[i_dot]*sub_a[i_dot];
+            }
+
+            double global_dot = 0.0;
+            MPI_Allreduce(&local_dot, &global_dot, 1, MPI_DOUBLE, MPI_SUM, comm);
+
+            if(rank == 0)
+                R[j * n + i] = global_dot;
+
+            for (size_t k = start; k < end; k++)
+                u_local[k - start] -= global_dot * Q_col_j[k];
+
+        }
+
+        double local_norm = 0.0;
+        for (size_t k = 0; k < end; k++)
+            local_norm += u_local[k] * u_local[k];
+
+        double global_norm = 0.0;
+        MPI_Allreduce(&local_norm, &global_norm, 0, MPI_DOUBLE, MPI_SUM, comm);
+
+        double norm = global_norm;
+        if (rank == 0) R[i * n + i] = norm;
+
+        for (size_t k = start; k < (end - start); k++)
+            Q[k * n + i] = (norm == 0) ? 0.0 : u_local[k - start] / norm;
     }
+    
+    free(A_col);
+    free(Q_col);
+    free(u_local);
+
 }
 
 
