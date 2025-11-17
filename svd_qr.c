@@ -38,7 +38,7 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
         for(size_t j=0; j<n; j++){
 
             if(rank==0){
-                for(size_t j_q=0; j_q<n; j++)
+                for(size_t j_q=0; j_q<n; j_q++)
                     Q_col[j_q] = Q[j_q * n + i];
             }
 
