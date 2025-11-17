@@ -49,7 +49,7 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
             double local_dot = 0.0;
 
             for(size_t i_dot=start; i_dot<end; i_dot++){
-                local_dot += sub_q[i_dot]*sub_a[i_dot];
+                local_dot += Q_col[i_dot]*A_col[i_dot];
             }
 
             double global_dot = 0.0;
@@ -59,7 +59,7 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
                 R[j * n + i] = global_dot;
 
             for (size_t k = start; k < end; k++)
-                u_local[k - start] -= global_dot * Q_col_j[k];
+                u_local[k - start] -= global_dot * Q_col[k];
 
         }
 
@@ -154,7 +154,7 @@ void QR_SVD(double A[][N]){
     // Compute AAt eigenvector and eigenvalues via QR Decomposition
     for(int iter = 0; iter < iterations; iter++){
         // Step 1: QR decomposition
-        QR_Decomposition(M, AAt, Q_AAt, R_AAt);
+        QR_Decomposition(M, AAt, Q_AAt, R_AAt, MPI_COMM_WORLD);
 
         // Step 2: New A = R @ Q
         for(size_t i=0;i<M;i++)
@@ -200,7 +200,7 @@ void QR_SVD(double A[][N]){
     // Compute AtA eigenvector
     for(int iter = 0; iter < iterations; iter++){
         // Step 1: QR decomposition
-        QR_Decomposition(N, AtA, Q_AtA, R_AtA);
+        QR_Decomposition(N, AtA, Q_AtA, R_AtA, MPI_COMM_WORLD);
 
         // Step 2: New A = R @ Q
         for(size_t i=0;i<N;i++)
