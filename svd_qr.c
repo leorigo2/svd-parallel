@@ -255,30 +255,29 @@ void QR_SVD(double A[][N], MPI_Comm comm){
         }
     }
 
-    if(rank == 0){
-        int rank = min(N, M);
-        printf("Eigenvalues:");
-        for (size_t i = 0; i < N; i++){
-            printf("\n");
-            for (size_t j = 0; j < N; j++){
-                if(i == j) printf("%f   ", eigvals[i][j]);
-            }
+    
+    int rank = min(N, M);
+    printf("Eigenvalues:");
+    for (size_t i = 0; i < N; i++){
+        printf("\n");
+        for (size_t j = 0; j < N; j++){
+            if(i == j) printf("%f   ", eigvals[i][j]);
         }
+    }
 
-        printf("\n\nLeft singular values:");
-        for (size_t i = 0; i < M; i++){
-            printf("\n");
-            for (size_t j = 0; j < rank; j++){
-                printf("%f  ", U[i][j]);
-            }
+    printf("\n\nLeft singular values:");
+    for (size_t i = 0; i < M; i++){
+        printf("\n");
+        for (size_t j = 0; j < rank; j++){
+            printf("%f  ", U[i][j]);
         }
+    }
 
-        printf("\n\nRight singular values:");
-        for (size_t i = 0; i < rank; i++){
-            printf("\n");
-            for (size_t j = 0; j < N; j++){
-                printf("%f  ", V[j][i]);
-            }
+    printf("\n\nRight singular values:");
+    for (size_t i = 0; i < rank; i++){
+        printf("\n");
+        for (size_t j = 0; j < N; j++){
+            printf("%f  ", V[j][i]);
         }
     }
 }
