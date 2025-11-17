@@ -7,7 +7,7 @@
 #define M 4 // rows
 #define min(a, b) ((a) < (b) ? (a) : (b))
 
-int count = 3; // elements per cluster
+int count = 12; // elements per cluster
 
 void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) {
 
