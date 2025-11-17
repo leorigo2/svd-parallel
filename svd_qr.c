@@ -23,27 +23,22 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
     double *Q_col = malloc(n * sizeof(double));
 
 
-    for(size_t i = 0; i < n; i++){ // one column per process
+    for(size_t i = 0; i < n; i++){ // some rows per process
         
         if(rank==0){
-            for(size_t j=0; j<n; j++)
+            for(size_t j=0; j<n; j++){
                 A_col[j] = A[j * n + i];
+                Q_col[j] = Q[j * n + i];
+            }
         }
         
         MPI_Bcast(A_col, n, MPI_DOUBLE, 0, comm); 
+        MPI_Bcast(Q_col, n, MPI_DOUBLE, 0, comm); 
     
         for (size_t k = start; k < end; k++)
             u_local[k - start] = A_col[k];
 
         for(size_t j=0; j<n; j++){
-
-            if(rank==0){
-                for(size_t j_q=0; j_q<n; j_q++)
-                    Q_col[j_q] = Q[j_q * n + i];
-            }
-
-            MPI_Bcast(Q_col, n, MPI_DOUBLE, 0, comm); 
-
             double local_dot = 0.0;
 
             for(size_t i_dot=start; i_dot<end; i_dot++){
@@ -67,6 +62,8 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
 
         double global_norm = 0.0;
         MPI_Allreduce(&local_norm, &global_norm, 1, MPI_DOUBLE, MPI_SUM, comm);
+
+        printf("%f", global_norm);
 
         double norm = global_norm;
         if (rank == 0) R[i * n + i] = norm;
