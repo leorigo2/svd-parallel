@@ -256,7 +256,7 @@ void QR_SVD(double A[][N], MPI_Comm comm){
     }
 
     
-    int rank = min(N, M);
+    int mat_rank = min(N, M);
     printf("Eigenvalues:");
     for (size_t i = 0; i < N; i++){
         printf("\n");
