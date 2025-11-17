@@ -22,6 +22,8 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
     double *A_col = malloc(n * sizeof(double)); 
     double *Q_col = malloc(n * sizeof(double));
 
+    printf("here");
+
 
     for(size_t i = 0; i < n; i++){ // one column per process
         
