@@ -77,7 +77,7 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
 
     printf("inside \n");
     for(int i = 0; i<N; i++){
-        printf(Q[i][0]);
+        printf("%f", Q[i][0]);
     }
     
     free(A_col);
