@@ -7,8 +7,6 @@
 #define M 4 // rows
 #define min(a, b) ((a) < (b) ? (a) : (b))
 
-int count = 12; // elements per cluster
-
 void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) {
 
     int rank, size;
@@ -275,7 +273,6 @@ int main(){
     MPI_Init(NULL, NULL);
     MPI_Comm_size(MPI_COMM_WORLD, &comm_sz);
     MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
-    printf("here");
     double A[M][N] = {
         {1, 2, 1},
         {2, 1, 4},
