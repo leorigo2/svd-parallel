@@ -22,8 +22,6 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
     double *A_col = malloc(n * sizeof(double)); 
     double *Q_col = malloc(n * sizeof(double));
 
-    printf("here");
-
 
     for(size_t i = 0; i < n; i++){ // one column per process
         
@@ -91,20 +89,20 @@ void QR_SVD(double A[][N], MPI_Comm comm){
     MPI_Comm_rank(comm, &rank);
     MPI_Comm_size(comm, &size);
 
-    double Anew[M][M] = {0};
-    double AT[N][M] = {0};
-    double AAt[M][M] = {0};
-    double AtA[N][N] = {0};
+    double Anew[M][M] = {0.0};
+    double AT[N][M] = {0.0};
+    double AAt[M][M] = {0.0};
+    double AtA[N][N] = {0.0};
     double U[M][M];
-    double Utemp[M][M] = {0};
+    double Utemp[M][M] = {0.0};
     double V[N][N];
-    double Vtemp[N][N] = {0};
-    double Q_AAt[M][M] = {0};
-    double Q_AtA[N][N] = {0};
-    double R_AAt[M][M] = {0};
-    double R_AtA[N][N] = {0};
+    double Vtemp[N][N] = {0.0};
+    double Q_AAt[M][M] = {0.0};
+    double Q_AtA[N][N] = {0.0};
+    double R_AAt[M][M] = {0.0};
+    double R_AtA[N][N] = {0.0};
     int iterations = 10;
-    double eigvals[N][N] = {0};
+    double eigvals[N][N] = {0.0};
 
     if(rank == 0){
         // Compute A transposed 
@@ -162,7 +160,7 @@ void QR_SVD(double A[][N], MPI_Comm comm){
     // Compute AAt eigenvector and eigenvalues via QR Decomposition
     for(int iter = 0; iter < iterations; iter++){
         // Step 1: QR decomposition
-        QR_Decomposition(M, AAt, Q_AAt, R_AAt, comm);
+        QR_Decomposition(M, (double *)AAt, (double *)Q_AAt, (double *)R_AAt, comm);
 
         // Step 2: New A = R @ Q
         if(rank == 0){
@@ -213,7 +211,7 @@ void QR_SVD(double A[][N], MPI_Comm comm){
     // Compute AtA eigenvector
     for(int iter = 0; iter < iterations; iter++){
         // Step 1: QR decomposition
-        QR_Decomposition(N, AtA, Q_AtA, R_AtA, comm);
+        QR_Decomposition(N, (double *)AtA, (double *)Q_AtA, (double *)R_AtA, comm);
 
         // Step 2: New A = R @ Q
         if(rank == 0){
@@ -255,29 +253,32 @@ void QR_SVD(double A[][N], MPI_Comm comm){
         }
     }
 
-    
-    int mat_rank = min(N, M);
-    printf("Eigenvalues:");
-    for (size_t i = 0; i < N; i++){
-        printf("\n");
-        for (size_t j = 0; j < N; j++){
-            if(i == j) printf("%f   ", eigvals[i][j]);
-        }
-    }
+    if(rank == 0){
 
-    printf("\n\nLeft singular values:");
-    for (size_t i = 0; i < M; i++){
-        printf("\n");
-        for (size_t j = 0; j < mat_rank; j++){
-            printf("%f  ", U[i][j]);
+        
+        int mat_rank = min(N, M);
+        printf("Eigenvalues:");
+        for (size_t i = 0; i < N; i++){
+            printf("\n");
+            for (size_t j = 0; j < N; j++){
+                if(i == j) printf("%f   ", eigvals[i][j]);
+            }
         }
-    }
 
-    printf("\n\nRight singular values:");
-    for (size_t i = 0; i < mat_rank; i++){
-        printf("\n");
-        for (size_t j = 0; j < N; j++){
-            printf("%f  ", V[j][i]);
+        printf("\n\nLeft singular values:");
+        for (size_t i = 0; i < M; i++){
+            printf("\n");
+            for (size_t j = 0; j < mat_rank; j++){
+                printf("%f  ", U[i][j]);
+            }
+        }
+
+        printf("\n\nRight singular values:");
+        for (size_t i = 0; i < mat_rank; i++){
+            printf("\n");
+            for (size_t j = 0; j < N; j++){
+                printf("%f  ", V[j][i]);
+            }
         }
     }
 }
