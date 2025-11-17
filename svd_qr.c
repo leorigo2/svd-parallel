@@ -283,7 +283,7 @@ int main(){
         {1, 2, 0}
     };
     
-    QR_SVD(A);
+    if(my_rank==0) QR_SVD(A);
 
     MPI_Finalize();
     return 0;
