@@ -82,7 +82,13 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
 }
 
 
-void QR_SVD(double A[][N]){
+void QR_SVD(double A[][N], MPI_Comm comm){
+
+    int rank, size;
+
+    MPI_Comm_rank(comm, &rank);
+    MPI_Comm_size(comm, &size);
+
     double Anew[M][M] = {0};
     double AT[N][M] = {0};
     double AAt[M][M] = {0};
@@ -98,53 +104,55 @@ void QR_SVD(double A[][N]){
     int iterations = 10;
     double eigvals[N][N] = {0};
 
-    // Compute A transposed 
-    for (size_t i = 0; i < M; i++)
-    {
-        for (size_t j = 0; j < N; j++)
+    if(my_rank == 0){
+        // Compute A transposed 
+        for (size_t i = 0; i < M; i++)
         {
-            AT[j][i] = A[i][j];
-        }
-    }
-
-    // Compute A @ A.T
-    for (size_t i = 0; i < M; i++){
-        for (size_t j = 0; j < M; j++){
-            AAt[i][j] = 0.0;
-        }
-    }
-    for (size_t i = 0; i < M; i++){
-        for (size_t j = 0; j < M; j++){
-            for (size_t k = 0; k < N; k++){
-                AAt[i][j] += A[i][k] * AT[k][j];
+            for (size_t j = 0; j < N; j++)
+            {
+                AT[j][i] = A[i][j];
             }
         }
-    }
 
-    // Compute A.T @ A
-    for (size_t i = 0; i < N; i++){
-        for(size_t j = 0; j < N; j++){
-            AtA[i][j] = 0;
-        }
-    }
-    for (size_t i = 0; i < N; i++){
-        for (size_t j = 0; j < N; j++){
-            for (size_t k = 0; k < M; k++){
-                AtA[i][j] += AT[i][k] * A[k][j];
+        // Compute A @ A.T
+        for (size_t i = 0; i < M; i++){
+            for (size_t j = 0; j < M; j++){
+                AAt[i][j] = 0.0;
             }
         }
-    }
-
-    // Initialize U, V as identity matrices NxN
-    for (size_t i = 0; i < M; i++) {
-        for (size_t j = 0; j < M; j++) {
-            U[i][j] = (i == j) ? 1.0 : 0.0;
+        for (size_t i = 0; i < M; i++){
+            for (size_t j = 0; j < M; j++){
+                for (size_t k = 0; k < N; k++){
+                    AAt[i][j] += A[i][k] * AT[k][j];
+                }
+            }
         }
-    }
 
-    for (size_t i = 0; i < N; i++) {
-        for (size_t j = 0; j < N; j++) {
-            V[i][j] = (i == j) ? 1.0 : 0.0;
+        // Compute A.T @ A
+        for (size_t i = 0; i < N; i++){
+            for(size_t j = 0; j < N; j++){
+                AtA[i][j] = 0;
+            }
+        }
+        for (size_t i = 0; i < N; i++){
+            for (size_t j = 0; j < N; j++){
+                for (size_t k = 0; k < M; k++){
+                    AtA[i][j] += AT[i][k] * A[k][j];
+                }
+            }
+        }
+
+        // Initialize U, V as identity matrices NxN
+        for (size_t i = 0; i < M; i++) {
+            for (size_t j = 0; j < M; j++) {
+                U[i][j] = (i == j) ? 1.0 : 0.0;
+            }
+        }
+
+        for (size_t i = 0; i < N; i++) {
+            for (size_t j = 0; j < N; j++) {
+                V[i][j] = (i == j) ? 1.0 : 0.0;
+            }
         }
     }
 
@@ -152,117 +160,125 @@ void QR_SVD(double A[][N]){
     // Compute AAt eigenvector and eigenvalues via QR Decomposition
     for(int iter = 0; iter < iterations; iter++){
         // Step 1: QR decomposition
-        QR_Decomposition(M, AAt, Q_AAt, R_AAt, MPI_COMM_WORLD);
+        QR_Decomposition(M, AAt, Q_AAt, R_AAt, comm);
 
         // Step 2: New A = R @ Q
-        for(size_t i=0;i<M;i++)
-            for(size_t j=0;j<M;j++)
-                Anew[i][j] = 0.0;
+        if(my_rank == 0){
+            for(size_t i=0;i<M;i++)
+                for(size_t j=0;j<M;j++)
+                    Anew[i][j] = 0.0;
 
-        for (size_t i = 0; i < M; i++){
-            for (size_t j = 0; j < M; j++){
-                for (size_t k = 0; k < M; k++){
-                    Anew[i][j] += R_AAt[i][k] * Q_AAt[k][j];
+            for (size_t i = 0; i < M; i++){
+                for (size_t j = 0; j < M; j++){
+                    for (size_t k = 0; k < M; k++){
+                        Anew[i][j] += R_AAt[i][k] * Q_AAt[k][j];
+                    }
                 }
             }
-        }
 
-        for (size_t i = 0; i < M; i++){
-            for (size_t j = 0; j < M; j++){
-                AAt[i][j] = Anew[i][j];
-            }
-        }
-
-        // Step 3: accumulate eigenvectors: U = U * Q
-        for(size_t i=0;i<M;i++)
-            for(size_t j=0;j<M;j++)
-                Utemp[i][j] = 0.0;
-        for (size_t i = 0; i < M; i++){
-            for (size_t j = 0; j < M; j++){
-                for (size_t k = 0; k < M; k++){
-                    Utemp[i][j] += U[i][k] * Q_AAt[k][j];
+            for (size_t i = 0; i < M; i++){
+                for (size_t j = 0; j < M; j++){
+                    AAt[i][j] = Anew[i][j];
                 }
             }
-        }
-        // Copy Utemp into U
-        for (size_t i = 0; i < M; i++){
-            for (size_t j = 0; j < M; j++){
-                U[i][j] = Utemp[i][j];
+
+            // Step 3: accumulate eigenvectors: U = U * Q
+            for(size_t i=0;i<M;i++)
+                for(size_t j=0;j<M;j++)
+                    Utemp[i][j] = 0.0;
+            for (size_t i = 0; i < M; i++){
+                for (size_t j = 0; j < M; j++){
+                    for (size_t k = 0; k < M; k++){
+                        Utemp[i][j] += U[i][k] * Q_AAt[k][j];
+                    }
+                }
+            }
+            // Copy Utemp into U
+            for (size_t i = 0; i < M; i++){
+                for (size_t j = 0; j < M; j++){
+                    U[i][j] = Utemp[i][j];
+                }
             }
         }
     }
-    for (size_t i = 0; i < M; i++)
-        eigvals[i][i] = AAt[i][i];
+
+    if(my_rank == 0){
+        for (size_t i = 0; i < M; i++)
+            eigvals[i][i] = AAt[i][i];
+    }
 
 
     // Compute AtA eigenvector
     for(int iter = 0; iter < iterations; iter++){
         // Step 1: QR decomposition
-        QR_Decomposition(N, AtA, Q_AtA, R_AtA, MPI_COMM_WORLD);
+        QR_Decomposition(N, AtA, Q_AtA, R_AtA, comm);
 
         // Step 2: New A = R @ Q
-        for(size_t i=0;i<N;i++)
-            for(size_t j=0;j<N;j++)
-                Anew[i][j] = 0.0;
-                
-        for (size_t i = 0; i < N; i++){
-            for (size_t j = 0; j < N; j++){
-                for (size_t k = 0; k < N; k++){
-                    Anew[i][j] += R_AtA[i][k] * Q_AtA[k][j];
+        if(my_rank == 0){
+            for(size_t i=0;i<N;i++)
+                for(size_t j=0;j<N;j++)
+                    Anew[i][j] = 0.0;
+                    
+            for (size_t i = 0; i < N; i++){
+                for (size_t j = 0; j < N; j++){
+                    for (size_t k = 0; k < N; k++){
+                        Anew[i][j] += R_AtA[i][k] * Q_AtA[k][j];
+                    }
+                }
+            }
+
+            for (size_t i = 0; i < N; i++){
+                for (size_t j = 0; j < N; j++){
+                    AtA[i][j] = Anew[i][j];
+                }
+            }
+
+            // Step 3: accumulate eigenvectors: V = V * Q
+            for(size_t i=0;i<N;i++)
+                for(size_t j=0;j<N;j++)
+                    Vtemp[i][j] = 0.0;
+            for (size_t i = 0; i < N; i++){
+                for (size_t j = 0; j < N; j++){
+                    for (size_t k = 0; k < N; k++){
+                        Vtemp[i][j] += V[i][k] * Q_AtA[k][j];
+                    }
+                }
+            }
+            // Copy Vtemp into V
+            for (size_t i = 0; i < N; i++){
+                for (size_t j = 0; j < N; j++){
+                    V[i][j] = Vtemp[i][j];
                 }
             }
         }
+    }
 
+    if(my_rank == 0){
+        int rank = min(N, M);
+        printf("Eigenvalues:");
         for (size_t i = 0; i < N; i++){
+            printf("\n");
             for (size_t j = 0; j < N; j++){
-                AtA[i][j] = Anew[i][j];
+                if(i == j) printf("%f   ", eigvals[i][j]);
             }
         }
 
-        // Step 3: accumulate eigenvectors: V = V * Q
-        for(size_t i=0;i<N;i++)
-            for(size_t j=0;j<N;j++)
-                Vtemp[i][j] = 0.0;
-        for (size_t i = 0; i < N; i++){
-            for (size_t j = 0; j < N; j++){
-                for (size_t k = 0; k < N; k++){
-                    Vtemp[i][j] += V[i][k] * Q_AtA[k][j];
-                }
+        printf("\n\nLeft singular values:");
+        for (size_t i = 0; i < M; i++){
+            printf("\n");
+            for (size_t j = 0; j < rank; j++){
+                printf("%f  ", U[i][j]);
             }
         }
-        // Copy Vtemp into V
-        for (size_t i = 0; i < N; i++){
+
+        printf("\n\nRight singular values:");
+        for (size_t i = 0; i < rank; i++){
+            printf("\n");
             for (size_t j = 0; j < N; j++){
-                V[i][j] = Vtemp[i][j];
+                printf("%f  ", V[j][i]);
             }
         }
     }
-    int rank = min(N, M);
-    printf("Eigenvalues:");
-    for (size_t i = 0; i < N; i++){
-        printf("\n");
-        for (size_t j = 0; j < N; j++){
-            if(i == j) printf("%f   ", eigvals[i][j]);
-        }
-    }
-
-    printf("\n\nLeft singular values:");
-    for (size_t i = 0; i < M; i++){
-        printf("\n");
-        for (size_t j = 0; j < rank; j++){
-            printf("%f  ", U[i][j]);
-        }
-    }
-
-    printf("\n\nRight singular values:");
-    for (size_t i = 0; i < rank; i++){
-        printf("\n");
-        for (size_t j = 0; j < N; j++){
-            printf("%f  ", V[j][i]);
-        }
-    }
-
-    
 }
 
 int main(){
@@ -280,7 +296,7 @@ int main(){
         {1, 2, 0}
     };
     
-    if(my_rank==0) QR_SVD(A);
+    QR_SVD(A, MPI_COMM_WORLD);
 
     MPI_Finalize();
     return 0;
