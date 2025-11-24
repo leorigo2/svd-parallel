@@ -19,8 +19,8 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
     size_t end = (rank == size - 1) ? n : start + rows_per_proc; // the last one ends at n if the size is not a multiplo
 
 
-    printf("rows, start, end: %zd, %zd, %zd\n", rows_per_proc, start, end);
-    
+    printf("rank, rows, start, end: %d, %zd, %zd, %zd\n", rank, rows_per_proc, start, end);
+
     double *u_local = malloc((end - start) * sizeof(double)); 
     double *A_col = malloc(n * sizeof(double)); 
     double *Q_col = malloc(n * sizeof(double));
