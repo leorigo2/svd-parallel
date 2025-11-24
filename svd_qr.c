@@ -29,8 +29,8 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
     for(size_t i = 0; i < n; i++){ // some rows per process
         
         if(rank==0){
-            for(size_t j=0; j<n; j++){ // i-th row of A
-                A_col[j] = A[i * n + j];
+            for(size_t j=0; j<n; j++){ // i-th column of A
+                A_col[j] = A[j * n + i];
             }
         }
         
@@ -39,16 +39,17 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
         for (size_t k = start; k < end; k++)
             u_local[k - start] = A_col[k];
 
-        for(size_t j=0; j<n; j++){
-            double local_dot = 0.0;
+        for(size_t j=0; j<i; j++){
+    
             if(rank == 0){
-                for(int i_q = 0; i_q < n; i_q++){ // j-th row of Q
-                    Q_col[i_q] = Q[j * n + i_q];
+                for(int i_q = 0; i_q < n; i_q++){ // j-th column of Q
+                    Q_col[i_q] = Q[i_q * n + j];
                 }
             }
 
             MPI_Bcast(Q_col, n, MPI_DOUBLE, 0, comm); 
-    
+
+            double local_dot = 0.0;
             for(size_t i_dot=start; i_dot<end; i_dot++){
                 local_dot += Q_col[i_dot]*A_col[i_dot];
             }
@@ -56,10 +57,10 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
             double global_dot = 0.0;
             MPI_Allreduce(&local_dot, &global_dot, 1, MPI_DOUBLE, MPI_SUM, comm);
             
-            R[i * n + j] = global_dot;
+            R[j * n + 1] = global_dot;
 
             for (size_t k = start; k < end; k++)
-                u_local[k - start] -= R[i * n + j] * Q_col[k];
+                u_local[k - start] -= R[j * n + i] * Q_col[k];
 
         }
 
@@ -74,7 +75,7 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
         R[i * n + i] = norm;
 
         for (size_t k = start; k < end; k++)
-            Q[i * n + k] = (norm == 0) ? 0.0 : u_local[k - start] / norm;
+            Q[k * n + i] = (norm == 0) ? 0.0 : u_local[k - start] / norm;
     }
 
     

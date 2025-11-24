@@ -26,7 +26,7 @@ def QR_Decomposition(A):
     return Q, R
 
 def main():
-    A = np.array([[1, 2, 1], [2, 1, 4], [3, 10, 1], [1, 2, 0]])
+    A = np.array([[1, 2, 1], [2, 1, 4], [3, 10, 1]])
     AAt = A.dot(A.T)
     AtA = A.T.dot(A)
     U = np.eye(A.shape[0])
