@@ -4,7 +4,7 @@
 #include <mpi.h>
 
 #define N 3  // columns    
-#define M 4 // rows
+#define M 3 // rows
 #define min(a, b) ((a) < (b) ? (a) : (b))
 
 void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) {
@@ -294,8 +294,7 @@ int main(){
     double A[M][N] = {
         {1, 2, 1},
         {2, 1, 4},
-        {3, 10, 1},
-        {1, 2, 0}
+        {3, 10, 1}
     };
     
     QR_SVD(A, MPI_COMM_WORLD);
