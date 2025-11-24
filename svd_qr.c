@@ -170,7 +170,7 @@ void QR_SVD(double A[][N], MPI_Comm comm){
         for(int i=0; i<M; i++){
             printf("\n");
             for(int j=0; j<M; j++){
-                print("%f ", Q_AAt[i][j]);
+                printf("%f ", Q_AAt[i][j]);
             }
         }
 
