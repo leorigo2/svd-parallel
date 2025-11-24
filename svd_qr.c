@@ -28,12 +28,11 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
         if(rank==0){
             for(size_t j=0; j<n; j++){ // i-th row of A
                 A_col[j] = A[j * n + i];
-                printf("a : %f ", A_col[j]);
             }
         }
         
         MPI_Bcast(A_col, n, MPI_DOUBLE, 0, comm); 
-        MPI_Bcast(Q_col, n, MPI_DOUBLE, 0, comm); 
+        
     
         for (size_t k = start; k < end; k++)
             u_local[k - start] = A_col[k];
@@ -43,20 +42,19 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
             if(rank == 0){
                 for(int i_q = 0; i_q < n; i_q++){ // j-th row of Q
                     Q_col[j] = Q[i_q * n + j];
-                    printf("q : %f ", Q_col[j]);
                 }
             }
+
+            MPI_Bcast(Q_col, n, MPI_DOUBLE, 0, comm); 
     
             for(size_t i_dot=start; i_dot<end; i_dot++){
                 local_dot += Q_col[i_dot]*A_col[i_dot];
             }
-            printf("local dot: %f", local_dot);
 
             double global_dot = 0.0;
             MPI_Allreduce(&local_dot, &global_dot, 1, MPI_DOUBLE, MPI_SUM, comm);
-
-            if(rank == 0)
-                R[j * n + i] = global_dot;
+            
+            R[j * n + i] = global_dot;
 
             for (size_t k = start; k < end; k++)
                 u_local[k - start] -= R[j * n + i] * Q_col[k];
@@ -70,10 +68,8 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
         double global_norm = 0.0;
         MPI_Allreduce(&local_norm, &global_norm, 1, MPI_DOUBLE, MPI_SUM, comm);
 
-        printf("%f", global_norm);
-
         double norm = global_norm;
-        if (rank == 0) R[i * n + i] = norm;
+        R[i * n + i] = norm;
 
         for (size_t k = start; k < end; k++)
             Q[k * n + i] = (norm == 0) ? 0.0 : u_local[k - start] / norm;
