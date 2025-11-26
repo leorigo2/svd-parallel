@@ -79,14 +79,14 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
         for (size_t i = 0; i < n; i++){
             printf("\n");
             for (size_t j = 0; j < n; j++){
-                printf("%f   ", Q[i][j]);
+                printf("%f   ", Q[i * n + j]);
             }
         }
         printf("R:");
         for (size_t i = 0; i < n; i++){
             printf("\n");
             for (size_t j = 0; j < n; j++){
-                printf("%f   ", R[i][j]);
+                printf("%f   ", R[i * n + j]);
             }
         }
     }
