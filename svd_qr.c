@@ -72,7 +72,7 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
         printf("\nu_local: ");
         for (size_t k = start; k < end; k++){
             Q[k * n + i] = (norm == 0) ? 0.0 : u_local[k - start] / norm;
-            print("%f ", u_local[k - start]);
+            printf("%f ", u_local[k - start]);
         }
         printf("\n");
     }
