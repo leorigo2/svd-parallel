@@ -73,12 +73,20 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
         double norm = sqrt(global_norm);
         R_i_col[i] = norm;
 
+        if (rank == 0) {
+            for (size_t j = 0; j <= i; j++) {
+                R[j * n + i] = R_i_col[j];
+            }
+        }
+
         for (size_t k = start; k < end; k++){
             Q_i_col[k] = (norm == 0) ? 0.0 : u_local[k - start] / norm;
         }
+
+        MPI_Gather(Q_i_col, rows_per_proc, MPI_DOUBLE, &Q[i], rows_per_proc * n, MPI_DOUBLE, 0, comm);
     }
     
-    MPI_Gather(Q_i_col, rows_per_proc, MPI_DOUBLE, Q, rows_per_proc, MPI_DOUBLE, 0, comm);
+    
     MPI_Gather(R_i_col, rows_per_proc, MPI_DOUBLE, R, rows_per_proc, MPI_DOUBLE, 0, comm);
 
 
