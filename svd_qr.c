@@ -78,8 +78,8 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
         }
     }
     
-    MPI_Gather(Q_i_col, rows_per_proc, MPI_DOUBLE, Q, n, MPI_DOUBLE, 0, comm);
-    MPI_Gather(R_i_col, rows_per_proc, MPI_DOUBLE, R, n, MPI_DOUBLE, 0, comm);
+    MPI_Gather(Q_i_col, rows_per_proc, MPI_DOUBLE, Q, rows_per_proc, MPI_DOUBLE, 0, comm);
+    MPI_Gather(R_i_col, rows_per_proc, MPI_DOUBLE, R, rows_per_proc, MPI_DOUBLE, 0, comm);
 
 
     free(Q_i_col);
