@@ -83,7 +83,7 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
             Q_i_col[k] = (norm == 0) ? 0.0 : u_local[k - start] / norm;
         }
 
-        MPI_Gather(Q_i_col, rows_per_proc, MPI_DOUBLE, &Q[i], rows_per_proc * n, MPI_DOUBLE, 0, comm);
+        MPI_Gather(Q_i_col, rows_per_proc, MPI_DOUBLE, Q + i, rows_per_proc * n, MPI_DOUBLE, 0, comm);
     }
     
     
@@ -179,14 +179,6 @@ void QR_SVD(double A[][N], MPI_Comm comm){
     for(int iter = 0; iter < iterations; iter++){
         // Step 1: QR decomposition
         QR_Decomposition(M, (double *)AAt, (double *)Q_AAt, (double *)R_AAt, comm);
-
-        printf("\n Q at %d", iter);
-        for(int i=0; i<M; i++){
-            printf("\n");
-            for(int j=0; j<M; j++){
-                printf("%f ", Q_AAt[i][j]);
-            }
-        }
 
         // Step 2: New A = R @ Q
         if(rank == 0){
