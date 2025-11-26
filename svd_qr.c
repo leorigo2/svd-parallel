@@ -93,7 +93,7 @@ void QR_SVD(double A[][N], MPI_Comm comm){
     MPI_Comm_rank(comm, &rank);
     MPI_Comm_size(comm, &size);
 
-    if(my_rank==0){
+    if(rank==0){
         double Anew[M][M] = {0.0};
         double AT[N][M] = {0.0};
         double AAt[M][M] = {0.0};
