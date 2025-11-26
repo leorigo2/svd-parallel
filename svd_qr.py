@@ -41,7 +41,7 @@ def main():
     iterations = int(math.log(
         4 * math.log(2 * A.shape[1] / delta) / (epsilon * delta)) / (2 * lamda))
     
-    iterations = 100
+    iterations = 10
 
     # SVD using QR method
 

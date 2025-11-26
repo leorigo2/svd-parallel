@@ -22,6 +22,9 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
     double *A_col = malloc(n * sizeof(double)); 
     double *Q_col = malloc(n * sizeof(double));
 
+    double *Q_i_col = malloc(rows_per_proc * sizeof(double));
+    double *R_i_col = malloc(rows_per_proc * sizeof(double));
+
     for(size_t i = 0; i < n; i++){ 
         
         if(rank==0){
@@ -53,8 +56,7 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
             double global_dot = 0.0;
             MPI_Allreduce(&local_dot, &global_dot, 1, MPI_DOUBLE, MPI_SUM, comm);
             
-            R[j * n + i] = global_dot;
-            printf("\nglobal dot: %f \n", global_dot);
+            R_i_col[j] = global_dot;
 
             for (size_t k = start; k < end; k++)
                 u_local[k - start] -= R[j * n + i] * Q_col[k];
@@ -69,33 +71,19 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
         MPI_Allreduce(&local_norm, &global_norm, 1, MPI_DOUBLE, MPI_SUM, comm);
 
         double norm = sqrt(global_norm);
-        R[i * n + i] = norm;
-        printf("\nu_local: ");
+        R_i_col[i] = norm;
+
         for (size_t k = start; k < end; k++){
-            Q[k * n + i] = (norm == 0) ? 0.0 : u_local[k - start] / norm;
-            printf("%f ", u_local[k - start]);
-        }
-        printf("\n");
-    }
-
-    if(rank==0){
-        printf("\nQ:");
-        for (size_t i = 0; i < n; i++){
-            printf("\n");
-            for (size_t j = 0; j < n; j++){
-                printf("%f   ", Q[i * n + j]);
-            }
-        }
-        printf("\nR:");
-        for (size_t i = 0; i < n; i++){
-            printf("\n");
-            for (size_t j = 0; j < n; j++){
-                printf("%f   ", R[i * n + j]);
-            }
+            Q_i_col[k] = (norm == 0) ? 0.0 : u_local[k - start] / norm;
         }
     }
-
     
+    MPI_Gather(Q_i_col, rows_per_proc, MPI_DOUBLE, Q, n, MPI_DOUBLE, 0, comm);
+    MPI_Gather(R_i_col, rows_per_proc, MPI_DOUBLE, R, n, MPI_DOUBLE, 0, comm);
+
+
+    free(Q_i_col);
+    free(R_i_col);
     free(A_col);
     free(Q_col);
     free(u_local);
@@ -300,6 +288,7 @@ void QR_SVD(double A[][N], MPI_Comm comm){
                 printf("%f  ", U[i][j]);
             }
         }
+        
 
         printf("\n\nRight singular values:");
         for (size_t i = 0; i < mat_rank; i++){
@@ -308,6 +297,7 @@ void QR_SVD(double A[][N], MPI_Comm comm){
                 printf("%f  ", V[j][i]);
             }
         }
+        printf("\n");
     }
 }
 
