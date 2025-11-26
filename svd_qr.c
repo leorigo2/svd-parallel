@@ -18,15 +18,11 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
     size_t start = rank * rows_per_proc;
     size_t end = (rank == size - 1) ? n : start + rows_per_proc; // the last one ends at n if the size is not a multiplo
 
-
-    printf("rank, rows, start, end: %d, %zd, %zd, %zd\n", rank, rows_per_proc, start, end);
-
     double *u_local = malloc((end - start) * sizeof(double)); 
     double *A_col = malloc(n * sizeof(double)); 
     double *Q_col = malloc(n * sizeof(double));
 
-
-    for(size_t i = 0; i < n; i++){ // some rows per process
+    for(size_t i = 0; i < n; i++){ 
         
         if(rank==0){
             for(size_t j=0; j<n; j++){ // i-th column of A
@@ -57,7 +53,7 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
             double global_dot = 0.0;
             MPI_Allreduce(&local_dot, &global_dot, 1, MPI_DOUBLE, MPI_SUM, comm);
             
-            R[j * n + 1] = global_dot;
+            R[j * n + i] = global_dot;
 
             for (size_t k = start; k < end; k++)
                 u_local[k - start] -= R[j * n + i] * Q_col[k];
@@ -78,6 +74,23 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
             Q[k * n + i] = (norm == 0) ? 0.0 : u_local[k - start] / norm;
     }
 
+    if(rank==0){
+        printf("Q:");
+        for (size_t i = 0; i < n; i++){
+            printf("\n");
+            for (size_t j = 0; j < n; j++){
+                printf("%f   ", Q[i][j]);
+            }
+        }
+        printf("R:");
+        for (size_t i = 0; i < n; i++){
+            printf("\n");
+            for (size_t j = 0; j < n; j++){
+                printf("%f   ", R[i][j]);
+            }
+        }
+    }
+
     
     free(A_col);
     free(Q_col);
@@ -93,22 +106,21 @@ void QR_SVD(double A[][N], MPI_Comm comm){
     MPI_Comm_rank(comm, &rank);
     MPI_Comm_size(comm, &size);
 
-    if(rank==0){
-        double Anew[M][M] = {0.0};
-        double AT[N][M] = {0.0};
-        double AAt[M][M] = {0.0};
-        double AtA[N][N] = {0.0};
-        double U[M][M];
-        double Utemp[M][M] = {0.0};
-        double V[N][N];
-        double Vtemp[N][N] = {0.0};
-        double Q_AAt[M][M] = {0.0};
-        double Q_AtA[N][N] = {0.0};
-        double R_AAt[M][M] = {0.0};
-        double R_AtA[N][N] = {0.0};
-        int iterations = 100;
-        double eigvals[N][N] = {0.0};
-    }
+    double Anew[M][M] = {0.0};
+    double AT[N][M] = {0.0};
+    double AAt[M][M] = {0.0};
+    double AtA[N][N] = {0.0};
+    double U[M][M];
+    double Utemp[M][M] = {0.0};
+    double V[N][N];
+    double Vtemp[N][N] = {0.0};
+    double Q_AAt[M][M] = {0.0};
+    double Q_AtA[N][N] = {0.0};
+    double R_AAt[M][M] = {0.0};
+    double R_AtA[N][N] = {0.0};
+    int iterations = 100;
+    double eigvals[N][N] = {0.0};
+
 
     if(rank == 0){
         // Compute A transposed 
