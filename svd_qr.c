@@ -93,20 +93,22 @@ void QR_SVD(double A[][N], MPI_Comm comm){
     MPI_Comm_rank(comm, &rank);
     MPI_Comm_size(comm, &size);
 
-    double Anew[M][M] = {0.0};
-    double AT[N][M] = {0.0};
-    double AAt[M][M] = {0.0};
-    double AtA[N][N] = {0.0};
-    double U[M][M];
-    double Utemp[M][M] = {0.0};
-    double V[N][N];
-    double Vtemp[N][N] = {0.0};
-    double Q_AAt[M][M] = {0.0};
-    double Q_AtA[N][N] = {0.0};
-    double R_AAt[M][M] = {0.0};
-    double R_AtA[N][N] = {0.0};
-    int iterations = 10;
-    double eigvals[N][N] = {0.0};
+    if(my_rank==0){
+        double Anew[M][M] = {0.0};
+        double AT[N][M] = {0.0};
+        double AAt[M][M] = {0.0};
+        double AtA[N][N] = {0.0};
+        double U[M][M];
+        double Utemp[M][M] = {0.0};
+        double V[N][N];
+        double Vtemp[N][N] = {0.0};
+        double Q_AAt[M][M] = {0.0};
+        double Q_AtA[N][N] = {0.0};
+        double R_AAt[M][M] = {0.0};
+        double R_AtA[N][N] = {0.0};
+        int iterations = 100;
+        double eigvals[N][N] = {0.0};
+    }
 
     if(rank == 0){
         // Compute A transposed 

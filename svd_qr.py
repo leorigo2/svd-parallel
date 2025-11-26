@@ -53,6 +53,7 @@ def main():
     # Now AtA (V matrix)
     for i in range(iterations):
         Q, R = QR_Decomposition(AtA)
+        print(Q)
         V = V @ Q
         AtA = R @ Q
 
