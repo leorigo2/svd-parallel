@@ -9,6 +9,7 @@
 
 void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) {
 
+    printf("enter qr_dec");
     int rank, size;
 
     MPI_Comm_rank(comm, &rank);
@@ -87,16 +88,15 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
     }
 
     printf("\n\nQ: ");
-        for (size_t i = 0; i < n; i++){
-            printf("\n");
-            for (size_t j = 0; j < n; j++){
-                printf("%f  ", Q[j][i]);
-            }
-        }
+    for (size_t i = 0; i < n; i++){
         printf("\n");
+        for (size_t j = 0; j < n; j++){
+            printf("%f  ", Q[j][i]);
+        }
+    }
+    printf("\n");
     
     MPI_Gather(R_i_col, rows_per_proc, MPI_DOUBLE, R, rows_per_proc, MPI_DOUBLE, 0, comm);
-
 
     free(Q_i_col);
     free(R_i_col);
