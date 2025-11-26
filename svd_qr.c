@@ -54,6 +54,7 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
             MPI_Allreduce(&local_dot, &global_dot, 1, MPI_DOUBLE, MPI_SUM, comm);
             
             R[j * n + i] = global_dot;
+            printf("\nglobal dot: %f \n", global_dot);
 
             for (size_t k = start; k < end; k++)
                 u_local[k - start] -= R[j * n + i] * Q_col[k];

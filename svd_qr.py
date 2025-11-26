@@ -15,6 +15,8 @@ def QR_Decomposition(A):
         u[:, i] = A[:, i]
         for j in range(i):
             u[:, i] -= (A[:, i] @ Q[:, j]) * Q[:, j] # get each u vector
+            print("dot: ", (A[:, i] @ Q[:, j]))
+            print("u: ", u[:, i], "\n")
 
         Q[:, i] = u[:, i] / np.linalg.norm(u[:, i]) # compute each e vetor
 
@@ -53,7 +55,6 @@ def main():
     # Now AtA (V matrix)
     for i in range(iterations):
         Q, R = QR_Decomposition(AtA)
-        print(Q)
         V = V @ Q
         AtA = R @ Q
 
