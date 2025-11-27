@@ -4,7 +4,7 @@
 #include <mpi.h>
 
 #define N 6  // columns    
-#define M 6 // rows
+#define M 5 // rows
 #define min(a, b) ((a) < (b) ? (a) : (b))
 
 void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) {
@@ -331,13 +331,12 @@ int main(){
     MPI_Init(NULL, NULL);
     MPI_Comm_size(MPI_COMM_WORLD, &comm_sz);
     MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
-    double A[M][N] = {
-        {  4.2, -1.7,  3.1,  0.5, -2.8,  1.9 },
-        { -0.9,  5.4, -1.2,  2.6,  0.3, -3.1 },
-        {  2.5,  0.8,  4.9, -1.4,  1.7,  0.2 },
-        { -3.3,  1.1,  0.6,  3.8, -0.5,  2.4 },
-        {  1.6, -2.9,  1.4,  0.7,  4.1, -1.0 },
-        {  0.2,  3.5, -2.6,  1.9, -0.8,  5.0 }
+    double A[5][6] = {
+        {  1.2,  -3.4,   5.6,   0.8,  -2.1,   4.3 },
+        { -0.7,   2.9,  -4.5,   3.1,   1.0,  -5.2 },
+        {  6.4,   0.3,  -1.8,  -2.6,   4.9,   0.7 },
+        { -3.0,   5.5,   2.2,  -0.9,  -4.1,   1.6 },
+        {  0.4,  -1.7,   3.8,   4.2,  -0.5,  -2.9 }
     };
 
     
