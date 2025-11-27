@@ -94,16 +94,16 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
     
         if (rank == 0) {
             for (int r = 0; r < size; r++) {
-                int rstart = displs[r];
-                int rcnt   = recvcounts[r];
+                int displacement = displs[r]; // displacement of Rth node
+                int elements_count = recvcounts[r]; // number of elements of Rth node
 
-                size_t global_start = (size_t)r * offset;  
+                size_t global_start = (size_t)r * offset; // starting point of Rth node
                 if (r == size - 1)
-                    global_start = n - rcnt;
+                    global_start = n - elements_count; // if it's the last node, subtract the remaining elements (it could be not a multiplo)
 
                 for (int rr = 0; rr < rcnt; rr++) {
-                    size_t global_row = global_start + rr;
-                    Q[global_row * n + i] = recv_col_buffer[rstart + rr];
+                    size_t global_row = global_start + rr; // compute the row for each element
+                    Q[global_row * n + i] = recv_col_buffer[displacement + rr]; // put each element in Q[row][i] so i-th column of Q
                 }
             }
         }   
