@@ -92,7 +92,7 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
             Q_i_col[k] = (norm == 0) ? 0.0 : u_local[k - start] / norm;
         }
 
-        if(my_rank==0)
+        if(rank==0)
             MPI_Gatherv(Q_i_col, rows_per_proc, MPI_DOUBLE, Q, recvcounts, displs, MPI_DOUBLE, 0, comm);
     }
 
