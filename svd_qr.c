@@ -28,7 +28,7 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
     for (int i = 1; i < size; ++i)
         displs[i] = displs[i-1] + recvcounts[i-1]; // compute displacements for GatherV (where to start saving elements)
 
-    double *u_local = malloc(rows_per_process * sizeof(double)); 
+    double *u_local = malloc(rows_per_proc * sizeof(double)); 
     double *A_col = malloc(n * sizeof(double)); 
     double *Q_col = malloc(n * sizeof(double));
 
@@ -327,7 +327,7 @@ int main(){
     MPI_Init(NULL, NULL);
     MPI_Comm_size(MPI_COMM_WORLD, &comm_sz);
     MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
-    double double A[M*N] = {
+    double A[M*N] = {
      4.2, -1.7,  3.1,  0.5, -2.8,  1.9,
     -0.9,  5.4, -1.2,  2.6,  0.3, -3.1,
      2.5,  0.8,  4.9, -1.4,  1.7,  0.2,
