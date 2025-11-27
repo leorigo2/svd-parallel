@@ -26,7 +26,14 @@ def QR_Decomposition(A):
     return Q, R
 
 def main():
-    A = np.array([[1, 2, 1, 1], [2, 1, 4, 2], [3, 10, 1, 0]])
+    A = np.array([
+    [ 4.2, -1.7,  3.1,  0.5, -2.8,  1.9],
+    [-0.9,  5.4, -1.2,  2.6,  0.3, -3.1],
+    [ 2.5,  0.8,  4.9, -1.4,  1.7,  0.2],
+    [-3.3,  1.1,  0.6,  3.8, -0.5,  2.4],
+    [ 1.6, -2.9,  1.4,  0.7,  4.1, -1.0],
+    [ 0.2,  3.5, -2.6,  1.9, -0.8,  5.0]
+    ])  
     AAt = A.dot(A.T)
     AtA = A.T.dot(A)
     U = np.eye(A.shape[0])
@@ -39,7 +46,7 @@ def main():
     iterations = int(math.log(
         4 * math.log(2 * A.shape[1] / delta) / (epsilon * delta)) / (2 * lamda))
     
-    iterations = 100
+    iterations = 10
 
     # SVD using QR method
 
@@ -47,6 +54,7 @@ def main():
     eigvals = AAt.copy()
     for i in range(iterations):
         Q, R = QR_Decomposition(eigvals)
+        print(Q)
         U = U @ Q
         eigvals = R @ Q
 
