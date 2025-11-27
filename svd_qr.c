@@ -116,16 +116,17 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
         }   
 
     }
-
-    printf("\n\nQ: ");
-    for (size_t i = 0; i < n; i++){
-        printf("\n");
-        for (size_t j = 0; j < n; j++){
-            printf("%f  ", Q[j*n+i]);
+    if(rank==0){
+        printf("\n\nR: ");
+        for (size_t i = 0; i < n; i++){
+            printf("\n");
+            for (size_t j = 0; j < n; j++){
+                printf("%f  ", R[j*n+i]);
+            }
         }
+        printf("\n");
     }
-    printf("\n");
-
+    
     free(Q_i_col);
     free(R_i_col);
     free(A_col);
