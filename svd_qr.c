@@ -22,12 +22,12 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
     int *recvcounts = malloc(size * sizeof(int));
     int *displs = malloc(size * sizeof(int));
 
-    MPI_Allgather(&rows_per_proc, 1, MPI_INT, recvcounts, 1, MPI_INT, comm); // gather rows per process, th recvcount for GatherV
+    MPI_Allgather(&rows_per_proc, 1, MPI_UNSIGNED_LONG, recvcounts, 1, MPI_UNSIGNED_LONG, comm); // gather rows per process, th recvcount for GatherV
 
     displs[0] = 0;
     for (int i = 1; i < size; ++i)
         displs[i] = displs[i-1] + recvcounts[i-1]; // compute displacements for GatherV (where to start saving elements)
-
+    
     double *u_local = malloc(rows_per_proc * sizeof(double)); 
     double *A_col = malloc(n * sizeof(double)); 
     double *Q_col = malloc(n * sizeof(double));
@@ -35,7 +35,7 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
     double *Q_i_col = malloc(rows_per_proc * sizeof(double));
     double *recv_col_buffer = malloc(n * sizeof(double));
 
-    double *R_i_col = malloc(rows_per_proc * sizeof(double));
+    double *R_i_col = malloc(n * sizeof(double));
 
     for(size_t i = 0; i < n; i++){ 
         
@@ -70,13 +70,13 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
             
             R_i_col[j] = global_dot;
 
-            for (size_t k = start; k < end; k++)
+            for (size_t k = k; k < end; k++)
                 u_local[k - start] -= R_i_col[j] * Q_col[k];
 
         }
 
         double local_norm = 0.0;
-        for (size_t k = 0; k < (end - start); k++)
+        for (size_t k = 0; k < rows_per_proc; k++)
             local_norm += u_local[k] * u_local[k];
 
         double global_norm = 0.0;
@@ -91,14 +91,29 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
             }
         }
 
-        for (size_t k = start; k < end; k++){
-            Q_i_col[k] = (norm == 0) ? 0.0 : u_local[k - start] / norm;
+        for (size_t k = 0; k < rows_per_proc; k++){
+            Q_i_col[k] = (norm == 0) ? 0.0 : u_local[k] / norm;
         }
 
         
 
         MPI_Gatherv(Q_i_col, rows_per_proc, MPI_DOUBLE, recv_col_buffer, recvcounts, displs, MPI_DOUBLE, 0, comm);
     }
+    if (rank == 0) {
+        for (int r = 0; r < size; r++) {
+            int rstart = displs[r];
+            int rcnt   = recvcounts[r];
+
+            size_t global_start = (size_t)r * offset;  
+            if (r == size - 1)
+                global_start = n - rcnt;
+
+            for (int rr = 0; rr < rcnt; rr++) {
+                size_t global_row = global_start + rr;
+                Q[global_row * n + i] = recv_col_buffer[rstart + rr];
+            }
+        }
+    }   
 
     printf("\n\nQ: ");
     for (size_t i = 0; i < n; i++){
