@@ -33,6 +33,8 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
     double *Q_col = malloc(n * sizeof(double));
 
     double *Q_i_col = malloc(rows_per_proc * sizeof(double));
+    double *recv_col_buffer = malloc(n * sizeof(double));
+
     double *R_i_col = malloc(rows_per_proc * sizeof(double));
 
     for(size_t i = 0; i < n; i++){ 
@@ -93,7 +95,9 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
             Q_i_col[k] = (norm == 0) ? 0.0 : u_local[k - start] / norm;
         }
 
-        MPI_Gatherv(Q_i_col, rows_per_proc, MPI_DOUBLE, Q, recvcounts, displs, MPI_DOUBLE, 0, comm);
+        
+
+        MPI_Gatherv(Q_i_col, rows_per_proc, MPI_DOUBLE, recv_col_buffer, recvcounts, displs, MPI_DOUBLE, 0, comm);
     }
 
     printf("\n\nQ: ");
@@ -105,7 +109,6 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
     }
     printf("\n");
 
-
     free(Q_i_col);
     free(R_i_col);
     free(A_col);
@@ -113,6 +116,7 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
     free(u_local);
     free(recvcounts);
     free(displs);
+    free(recv_col_buffer):
 
 }
 
