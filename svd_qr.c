@@ -35,8 +35,6 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
     double *Q_i_col = malloc(rows_per_proc * sizeof(double));
     double *recv_col_buffer = malloc(n * sizeof(double));
 
-    double *R_i_col = malloc(n * sizeof(double));
-
     for(size_t i = 0; i < n; i++){ 
         
         if(rank==0){
@@ -68,10 +66,10 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
             double global_dot = 0.0;
             MPI_Allreduce(&local_dot, &global_dot, 1, MPI_DOUBLE, MPI_SUM, comm);
             
-            R_i_col[j] = global_dot;
+            if(rank==0) R[j * n + i] = global_dot;
 
             for (size_t k = k; k < end; k++)
-                u_local[k - start] -= R_i_col[j] * Q_col[k];
+                u_local[k - start] -= global_dot * Q_col[k];
 
         }
 
@@ -83,13 +81,10 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
         MPI_Allreduce(&local_norm, &global_norm, 1, MPI_DOUBLE, MPI_SUM, comm);
 
         double norm = sqrt(global_norm);
-        R_i_col[i] = norm;
 
-        if (rank == 0) {
-            for (size_t j = 0; j <= i; j++) {
-                R[j * n + i] = R_i_col[j];
-            }
-        }
+	printf("Process %d, global norm: %f", rank, norm); 
+
+        if (rank == 0) R[i * n + i] = norm;
 
         for (size_t k = 0; k < rows_per_proc; k++){
             Q_i_col[k] = (norm == 0) ? 0.0 : u_local[k] / norm;
@@ -110,7 +105,7 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
 
                 for (int rr = 0; rr < rcnt; rr++) {
                     size_t global_row = global_start + rr;
-                    Q[i * n + global_row] = recv_col_buffer[rstart + rr];
+                    Q[global_row * n + i] = recv_col_buffer[rstart + rr];
                 }
             }
         }   
@@ -121,14 +116,13 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
         for (size_t i = 0; i < n; i++){
             printf("\n");
             for (size_t j = 0; j < n; j++){
-                printf("%f  ", Q[j*n+i]);
+                printf("%f  ", Q[i*n+j]);
             }
         }
         printf("\n");
     }
 
     free(Q_i_col);
-    free(R_i_col);
     free(A_col);
     free(Q_col);
     free(u_local);
