@@ -98,22 +98,24 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
         
 
         MPI_Gatherv(Q_i_col, rows_per_proc, MPI_DOUBLE, recv_col_buffer, recvcounts, displs, MPI_DOUBLE, 0, comm);
-    }
-    if (rank == 0) {
-        for (int r = 0; r < size; r++) {
-            int rstart = displs[r];
-            int rcnt   = recvcounts[r];
+    
+        if (rank == 0) {
+            for (int r = 0; r < size; r++) {
+                int rstart = displs[r];
+                int rcnt   = recvcounts[r];
 
-            size_t global_start = (size_t)r * offset;  
-            if (r == size - 1)
-                global_start = n - rcnt;
+                size_t global_start = (size_t)r * offset;  
+                if (r == size - 1)
+                    global_start = n - rcnt;
 
-            for (int rr = 0; rr < rcnt; rr++) {
-                size_t global_row = global_start + rr;
-                Q[global_row * n + i] = recv_col_buffer[rstart + rr];
+                for (int rr = 0; rr < rcnt; rr++) {
+                    size_t global_row = global_start + rr;
+                    Q[global_row * n + i] = recv_col_buffer[rstart + rr];
+                }
             }
-        }
-    }   
+        }   
+        
+    }
 
     printf("\n\nQ: ");
     for (size_t i = 0; i < n; i++){
