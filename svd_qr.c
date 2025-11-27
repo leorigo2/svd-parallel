@@ -17,7 +17,7 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
     size_t offset = n / size;
     size_t start = rank * offset;
     size_t end = (rank == size - 1) ? n : start + offset; // the last one ends at n if the size is not a multiplo
-    size_t rows_per_process = end - start; 
+    size_t rows_per_proc = end - start; 
 
     int *recvcounts = malloc(size * sizeof(int));
     int *displs = malloc(size * sizeof(int));
