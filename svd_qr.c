@@ -110,7 +110,7 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
 
                 for (int rr = 0; rr < rcnt; rr++) {
                     size_t global_row = global_start + rr;
-                    Q[global_row * n + i] = recv_col_buffer[rstart + rr];
+                    Q[i * n + global_row] = recv_col_buffer[rstart + rr];
                 }
             }
         }   
