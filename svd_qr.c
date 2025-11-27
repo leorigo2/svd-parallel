@@ -9,7 +9,6 @@
 
 void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) {
 
-    printf("enter qr_dec");
     int rank, size;
 
     MPI_Comm_rank(comm, &rank);
@@ -18,6 +17,15 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
     size_t rows_per_proc = n / size;
     size_t start = rank * rows_per_proc;
     size_t end = (rank == size - 1) ? n : start + rows_per_proc; // the last one ends at n if the size is not a multiplo
+
+    int *recvcounts = malloc(size * sizeof(int));
+    int *displs     = malloc(size * sizeof(int));
+
+    MPI_Allgather(&rows_per_proc, 1, MPI_INT, recvcounts, 1, MPI_INT, comm); // gather rows per process, th recvcount for GatherV
+
+    displs[0] = 0;
+    for (int i = 1; i < size; ++i)
+        displs[i] = displs[i-1] + recvcounts[i-1]; // compute displacements for GatherV (where to start saving elements)
 
     double *u_local = malloc((end - start) * sizeof(double)); 
     double *A_col = malloc(n * sizeof(double)); 
@@ -84,7 +92,8 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
             Q_i_col[k] = (norm == 0) ? 0.0 : u_local[k - start] / norm;
         }
 
-        MPI_Gather(Q_i_col, rows_per_proc, MPI_DOUBLE, Q + i, rows_per_proc * size, MPI_DOUBLE, 0, comm);
+        if(my_rank==0)
+            MPI_Gatherv(Q_i_col, rows_per_proc, MPI_DOUBLE, Q, recvcounts, displs, MPI_DOUBLE, 0, comm);
     }
 
     printf("\n\nQ: ");
@@ -96,13 +105,15 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
     }
     printf("\n");
     
-    //MPI_Gather(R_i_col, rows_per_proc, MPI_DOUBLE, R, rows_per_proc, MPI_DOUBLE, 0, comm);
+    MPI_Gather(R_i_col, rows_per_proc, MPI_DOUBLE, R, rows_per_proc, MPI_DOUBLE, 0, comm);
 
     free(Q_i_col);
     free(R_i_col);
     free(A_col);
     free(Q_col);
     free(u_local);
+    free(recvcounts);
+    free(displs);
 
 }
 
