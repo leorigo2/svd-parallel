@@ -22,7 +22,9 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
     int *recvcounts = malloc(size * sizeof(int));
     int *displs = malloc(size * sizeof(int));
 
-    MPI_Allgather(&rows_per_proc, 1, MPI_UNSIGNED_LONG, recvcounts, 1, MPI_UNSIGNED_LONG, comm); // gather rows per process, th recvcount for GatherV
+    int local_rows_int = (int) rows_per_proc;
+
+    MPI_Allgather(&rows_per_proc, 1, MPI_INT, recvcounts, 1, MPI_INT, comm); // gather rows per process, th recvcount for GatherV
 
     displs[0] = 0;
     for (int i = 1; i < size; ++i)
@@ -68,7 +70,7 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
             
             if(rank==0) R[j * n + i] = global_dot;
 
-            for (size_t k = k; k < end; k++)
+            for (size_t k = start; k < end; k++)
                 u_local[k - start] -= global_dot * Q_col[k];
 
         }
