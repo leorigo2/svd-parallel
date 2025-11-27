@@ -84,15 +84,11 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
 
         double norm = sqrt(global_norm);
 
-	printf("Process %d, global norm: %f", rank, norm); 
-
         if (rank == 0) R[i * n + i] = norm;
 
         for (size_t k = 0; k < rows_per_proc; k++){
             Q_i_col[k] = (norm == 0) ? 0.0 : u_local[k] / norm;
         }
-
-        
 
         MPI_Gatherv(Q_i_col, rows_per_proc, MPI_DOUBLE, recv_col_buffer, recvcounts, displs, MPI_DOUBLE, 0, comm);
     
@@ -112,16 +108,6 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
             }
         }   
 
-    }
-    if(rank==0){
-        printf("\n\nQ: ");
-        for (size_t i = 0; i < n; i++){
-            printf("\n");
-            for (size_t j = 0; j < n; j++){
-                printf("%f  ", Q[i*n+j]);
-            }
-        }
-        printf("\n");
     }
 
     free(Q_i_col);
@@ -313,7 +299,7 @@ void QR_SVD(double A[][N], MPI_Comm comm){
         for (size_t i = 0; i < N; i++){
             printf("\n");
             for (size_t j = 0; j < N; j++){
-                printf("%f   ", eigvals[i][j]);
+                if(i==j) printf("%f   ", sqrt(eigvals[i][j]));
             }
         }
 
