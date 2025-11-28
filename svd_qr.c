@@ -38,7 +38,7 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
     double *recv_col_buffer = malloc(n * sizeof(double));
 
     for(size_t i = 0; i < n; i++){ 
-        
+
         if(rank==0){
             for(size_t j=0; j<n; j++){ // i-th column of A
                 A_col[j] = A[j * n + i];
@@ -51,7 +51,7 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
             u_local[k - start] = A_col[k];
 
         for(size_t j=0; j<i; j++){
-    
+
             if(rank == 0){
                 for(int i_q = 0; i_q < n; i_q++){ // j-th column of Q
                     Q_col[i_q] = Q[i_q * n + j];
@@ -91,7 +91,7 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
         }
 
         MPI_Gatherv(Q_i_col, rows_per_proc, MPI_DOUBLE, recv_col_buffer, recvcounts, displs, MPI_DOUBLE, 0, comm);
-    
+
         if (rank == 0) {
             for (int r = 0; r < size; r++) {
                 int displacement = displs[r]; // displacement of Rth node
@@ -109,6 +109,7 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
         }   
 
     }
+
 
     free(Q_i_col);
     free(A_col);
@@ -128,7 +129,6 @@ void QR_SVD(double A[][N], MPI_Comm comm){
     MPI_Comm_rank(comm, &rank);
     MPI_Comm_size(comm, &size);
 
-    double Anew[M][M] = {0.0};
     double AT[N][M] = {0.0};
     double AAt[M][M] = {0.0};
     double AtA[N][N] = {0.0};
@@ -202,6 +202,7 @@ void QR_SVD(double A[][N], MPI_Comm comm){
         // Step 1: QR decomposition
         QR_Decomposition(M, (double *)AAt, (double *)Q_AAt, (double *)R_AAt, comm);
 
+	double Anew[M][M] = {0.0};
         // Step 2: New A = R @ Q
         if(rank == 0){
             for(size_t i=0;i<M;i++)
@@ -253,6 +254,7 @@ void QR_SVD(double A[][N], MPI_Comm comm){
         // Step 1: QR decomposition
         QR_Decomposition(N, (double *)AtA, (double *)Q_AtA, (double *)R_AtA, comm);
 
+	double Anew[N][N] = {0.0};
         // Step 2: New A = R @ Q
         if(rank == 0){
             for(size_t i=0;i<N;i++)
