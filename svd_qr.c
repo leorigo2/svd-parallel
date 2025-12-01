@@ -10,7 +10,13 @@
 
 double **matrix_multiplication(size_t m, size_t n, double* A, double* B, MPI_Comm comm){ // m rows of A, n column of A
     
-    double C[m][m] = {0};
+    double C[m][m];
+    for(int i=0; i<m; i++){
+        for(int j=0; j<m; j++){
+            C[i][j] = 0.0;
+        }
+    }
+
     int i, j, k; 
     int size;
 
@@ -178,11 +184,6 @@ void QR_SVD(double A[][N], MPI_Comm comm){
         // Compute A @ A.T
         for (size_t i = 0; i < M; i++){
             for (size_t j = 0; j < M; j++){
-                AAt[i][j] = 0.0;
-            }
-        }
-        for (size_t i = 0; i < M; i++){
-            for (size_t j = 0; j < M; j++){
                 for (size_t k = 0; k < N; k++){
                     AAt[i][j] += A[i][k] * AT[k][j];
                 }
@@ -190,11 +191,6 @@ void QR_SVD(double A[][N], MPI_Comm comm){
         }
 
         // Compute A.T @ A
-        for (size_t i = 0; i < N; i++){
-            for(size_t j = 0; j < N; j++){
-                AtA[i][j] = 0;
-            }
-        }
         for (size_t i = 0; i < N; i++){
             for (size_t j = 0; j < N; j++){
                 for (size_t k = 0; k < M; k++){
@@ -226,10 +222,6 @@ void QR_SVD(double A[][N], MPI_Comm comm){
 	double Anew[M][M] = {0.0};
         // Step 2: New A = R @ Q
         if(rank == 0){
-            for(size_t i=0;i<M;i++)
-                for(size_t j=0;j<M;j++)
-                    Anew[i][j] = 0.0;
-
             for (size_t i = 0; i < M; i++){
                 for (size_t j = 0; j < M; j++){
                     for (size_t k = 0; k < M; k++){
@@ -278,10 +270,6 @@ void QR_SVD(double A[][N], MPI_Comm comm){
 	double Anew[N][N] = {0.0};
         // Step 2: New A = R @ Q
         if(rank == 0){
-            for(size_t i=0;i<N;i++)
-                for(size_t j=0;j<N;j++)
-                    Anew[i][j] = 0.0;
-                    
             for (size_t i = 0; i < N; i++){
                 for (size_t j = 0; j < N; j++){
                     for (size_t k = 0; k < N; k++){
@@ -379,7 +367,6 @@ int main(){
     {  4.0,  0.5, -1.8,  2.9,  0.3, -5.0,  3.6, -0.9,  1.4, -2.7,  5.0,  0.8, -4.1,  2.2, -0.6,  1.7,  0.4,  3.9, -1.5,  0.1 },
 
     { -0.5,  4.9,  0.1, -1.7,  5.0,  3.6, -0.6,  2.1,  0.7, -4.2,  1.8, -0.4,  3.0, -2.5,  0.9,  4.0, -1.3,  0.6, -3.8,  5.0 },
-    {  2.1, -0.4,  3.5,  0.6, -1.3,  4.8,  0.9,  5.0, -2.0,  0.7,  3.9, -4.6,  1.2,  0.3, -0.8,  2.5,  4.0, -1.9,  0.6, -3.2 }
 };
 
 
