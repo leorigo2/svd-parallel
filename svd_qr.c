@@ -11,18 +11,19 @@
 double **matrix_multiplication(size_t m, size_t n, double* A, double* B, MPI_Comm comm){ // m rows of A, n column of A
     
     double C[m][m];
+
     for(int i=0; i<m; i++){
         for(int j=0; j<m; j++){
             C[i][j] = 0.0;
         }
     }
 
+    omp_set_num_threads(omp_get_num_procs());
+
     int i, j, k; 
     int size;
 
-    MPI_Comm_size(comm, &size);
-
-    #pragma omp parallel for num_threads(size) private(i,j,k) shared(A,B,C)
+    #pragma omp parallel for private(i,j,k) shared(A,B,C)
     for (i = 0; i < N; ++i) {
         for (j = 0; j < N; ++j) {
             for (k = 0; k < N; ++k) {
