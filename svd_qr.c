@@ -14,7 +14,7 @@ void matrix_multiplication(size_t m, size_t n, double* A, double* B, double C[][
     int size;
     MPI_Comm_size(comm, &size);
 
-    #pragma omp parallel for num_thread(size) private(i,j,k) shared(A,B,C)
+    # pragma omp parallel for num_thread(size)
     for (i = 0; i < m; ++i) {
         for (j = 0; j < m; ++j) {
             for (k = 0; k < n; ++k) {
