@@ -8,31 +8,21 @@
 #define M 20 // rows
 #define min(a, b) ((a) < (b) ? (a) : (b))
 
-double **matrix_multiplication(size_t m, size_t n, double* A, double* B, MPI_Comm comm){ // m rows of A, n column of A
-    
-    double C[m][m];
-
-    for(int i=0; i<m; i++){
-        for(int j=0; j<m; j++){
-            C[i][j] = 0.0;
-        }
-    }
-
-    omp_set_num_threads(omp_get_num_procs());
+void matrix_multiplication(size_t m, size_t n, double* A, double* B, double C[][m], MPI_Comm comm){ // m rows of A, n column of A
 
     int i, j, k; 
     int size;
+    MPI_Comm_size(comm, &size);
 
-    #pragma omp parallel for private(i,j,k) shared(A,B,C)
-    for (i = 0; i < N; ++i) {
-        for (j = 0; j < N; ++j) {
-            for (k = 0; k < N; ++k) {
+    #pragma omp parallel for num_thread(size) private(i,j,k) shared(A,B,C)
+    for (i = 0; i < m; ++i) {
+        for (j = 0; j < m; ++j) {
+            for (k = 0; k < n; ++k) {
                 C[i][j] += A[i * m + k] * B[k * n + j];
             }
         }
     }
 
-    return C;
 }
 
 void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) {
