@@ -177,6 +177,7 @@ void QR_SVD(double A[][N], MPI_Comm comm){
             for (size_t j = 0; j < M; j++){
                 for (size_t k = 0; k < N; k++){
                     AAt[i][j] += A[i][k] * AT[k][j];
+                    matrix_multiplication(M, N, (double *)A, (double *)AT, AAt, comm);
                 }
             }
         }
