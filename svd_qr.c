@@ -219,7 +219,7 @@ void QR_SVD(double A[][N], MPI_Comm comm){
                 for (size_t j = 0; j < M; j++){
                     for (size_t k = 0; k < M; k++){
                         Anew[i][j] += R_AAt[i][k] * Q_AAt[k][j];
-                        matrix_multiplication(M, M, (double *)R_AAt, (double *)Q_AAt, Anew, comm);
+                        //matrix_multiplication(M, M, (double *)R_AAt, (double *)Q_AAt, Anew, comm);
                     }
                 }
             }
@@ -238,7 +238,7 @@ void QR_SVD(double A[][N], MPI_Comm comm){
                 for (size_t j = 0; j < M; j++){
                     for (size_t k = 0; k < M; k++){
                         Utemp[i][j] += U[i][k] * Q_AAt[k][j];
-                        matrix_multiplication(M, M, (double *)U, (double *)Q_AAt, Utemp, comm);
+                        //matrix_multiplication(M, M, (double *)U, (double *)Q_AAt, Utemp, comm);
                     }
                 }
             }
@@ -269,7 +269,7 @@ void QR_SVD(double A[][N], MPI_Comm comm){
                 for (size_t j = 0; j < N; j++){
                     for (size_t k = 0; k < N; k++){
                         Anew[i][j] += R_AtA[i][k] * Q_AtA[k][j];
-                        matrix_multiplication(N, N, (double *)R_AtA, (double *)Q_AtA, Anew, comm);
+                        //matrix_multiplication(N, N, (double *)R_AtA, (double *)Q_AtA, Anew, comm);
                     }
                 }
             }
@@ -288,7 +288,7 @@ void QR_SVD(double A[][N], MPI_Comm comm){
                 for (size_t j = 0; j < N; j++){
                     for (size_t k = 0; k < N; k++){
                         Vtemp[i][j] += V[i][k] * Q_AtA[k][j];
-                        matrix_multiplication(N, N, (double *)V, (double *)Q_AtA, Vtemp, comm);
+                        //matrix_multiplication(N, N, (double *)V, (double *)Q_AtA, Vtemp, comm);
                     }
                 }
             }
