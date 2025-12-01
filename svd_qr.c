@@ -1,11 +1,32 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <omp.h>
 #include <mpi.h>
 
 #define N 20  // columns    
 #define M 20 // rows
 #define min(a, b) ((a) < (b) ? (a) : (b))
+
+double **matrix_multiplication(size_t m, size_t n, double* A, double* B, MPI_Comm comm){ // m rows of A, n column of A
+    
+    double C[m][m] = {0};
+    int i, j, k; 
+    int size;
+
+    MPI_Comm_size(comm, &size);
+
+    #pragma omp parallel for num_threads(size) private(i,j,k) shared(A,B,C)
+    for (i = 0; i < N; ++i) {
+        for (j = 0; j < N; ++j) {
+            for (k = 0; k < N; ++k) {
+                C[i][j] += A[i * m + k] * B[k * n + j];
+            }
+        }
+    }
+
+    return C;
+}
 
 void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) {
 
