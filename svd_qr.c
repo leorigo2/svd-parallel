@@ -1,9 +1,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <time.h>
 
-#define N 3  // Example size; can be changed
-#define M 4
+#define N 6  // Example size; can be changed
+#define M 5
 #define min(a, b) ((a) < (b) ? (a) : (b))
 
 void QR_Decomposition(size_t n, double A[][n], double Q[][n], double R[][n]) {
@@ -47,7 +48,6 @@ void QR_Decomposition(size_t n, double A[][n], double Q[][n], double R[][n]) {
 
 
 void QR_SVD(double A[][N]){
-    double Anew[M][M] = {0};
     double AT[N][M] = {0};
     double AAt[M][M] = {0};
     double AtA[N][N] = {0};
@@ -119,9 +119,7 @@ void QR_SVD(double A[][N]){
         QR_Decomposition(M, AAt, Q_AAt, R_AAt);
 
         // Step 2: New A = R @ Q
-        for(size_t i=0;i<M;i++)
-            for(size_t j=0;j<M;j++)
-                Anew[i][j] = 0.0;
+        double Anew[M][M] = {0.0};
 
         for (size_t i = 0; i < M; i++){
             for (size_t j = 0; j < M; j++){
@@ -165,9 +163,7 @@ void QR_SVD(double A[][N]){
         QR_Decomposition(N, AtA, Q_AtA, R_AtA);
 
         // Step 2: New A = R @ Q
-        for(size_t i=0;i<N;i++)
-            for(size_t j=0;j<N;j++)
-                Anew[i][j] = 0.0;
+        double Anew[N][N] = {0.0};
                 
         for (size_t i = 0; i < N; i++){
             for (size_t j = 0; j < N; j++){
@@ -222,23 +218,33 @@ void QR_SVD(double A[][N]){
     for (size_t i = 0; i < rank; i++){
         printf("\n");
         for (size_t j = 0; j < N; j++){
-            printf("%f  ", V[j][i]);
+            printf("%f  ", V[i][j]);
         }
     }
 
     
 }
 
-int main(){
-    printf("here");
+int main()
+{
     double A[M][N] = {
-        {1, 2, 1},
-        {2, 1, 4},
-        {3, 10, 1},
-        {1, 2, 0}
+        {  1.2,  -3.4,   5.6,   0.8,  -2.1,   4.3 },
+        { -0.7,   2.9,  -4.5,   3.1,   1.0,  -5.2 },
+        {  6.4,   0.3,  -1.8,  -2.6,   4.9,   0.7 },
+        { -3.0,   5.5,   2.2,  -0.9,  -4.1,   1.6 },
+        {  0.4,  -1.7,   3.8,   4.2,  -0.5,  -2.9 }
     };
-   
-    QR_SVD(A);
+
+    clock_t start = clock();
+
+    QR_SVD(A); 
+
+    clock_t end = clock();
+
+    double elapsed = (double)(end - start) / CLOCKS_PER_SEC;
+
+    printf("\nTotal elapsed time: %.6f seconds\n", elapsed);
+
     return 0;
 }
 
