@@ -4,8 +4,6 @@
 #include <omp.h>
 #include <mpi.h>
 
-#define N 6  // columns    
-#define M 5 // rows
 #define min(a, b) ((a) < (b) ? (a) : (b))
 
 double** read_matrix(FILE* file, int R, int C){ // R rows of matrix, C columns of matrix
@@ -160,7 +158,7 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
 }
 
 
-void QR_SVD(double A[][N], MPI_Comm comm){
+void QR_SVD(double** A, int M, int N, MPI_Comm comm){
 
     int rank, size;
 
@@ -371,7 +369,7 @@ int main(int argc, char* argv[]){
         MPI_Bcast(&C, 1, MPI_INT, 0, MPI_COMM_WORLD);
         elements = R*C;
 
-        double* flat_matrix = (double*)malloc(element_count * sizeof(double));;
+        double* flat_matrix = (double*)malloc(elements * sizeof(double));;
 
         if(my_rank == 0){
             current_matrix = read_matrix(dataset, R, C);
@@ -389,7 +387,7 @@ int main(int argc, char* argv[]){
         MPI_Barrier(MPI_COMM_WORLD); // Start all processes
         start_time = MPI_Wtime();
 
-        QR_SVD(current_matrix, MPI_COMM_WORLD);
+        QR_SVD(current_matrix, R, C, MPI_COMM_WORLD);
 
         MPI_Barrier(MPI_COMM_WORLD); // Wait all processes to finish
         end_time = MPI_Wtime();
