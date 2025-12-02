@@ -11,9 +11,9 @@
 void matrix_multiplication(size_t m, size_t n, double A[m][n], double B[n][m], double C[m][m]){ // m rows of A, n column of A
 
     int i, j, k; 
-    int size;
+    int threads = omp_get_max_threads();
 
-    # pragma omp parallel for private(i, j, k)
+    # pragma omp parallel for num_threads(threads) private(i, j, k)
     for (i = 0; i < m; ++i) {
         for (j = 0; j < m; ++j) {
             for (k = 0; k < n; ++k) {
