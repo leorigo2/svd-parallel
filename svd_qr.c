@@ -345,13 +345,12 @@ int main(){
 
     int comm_sz; 
     int my_rank;
-    double start_time, end_time, elapsed_time; // Variables for timing
+    double start_time, end_time, elapsed_time; 
 
     MPI_Init(NULL, NULL);
     MPI_Comm_size(MPI_COMM_WORLD, &comm_sz);
     MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
     
-    // Set up the matrix A
     double A[5][6] = {
         {  1.2,  -3.4,   5.6,   0.8,  -2.1,   4.3 },
         { -0.7,   2.9,  -4.5,   3.1,   1.0,  -5.2 },
