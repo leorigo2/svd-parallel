@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 
 #PBS -l select=4:ncpus=4:mem=2gb
 # set max execution time
