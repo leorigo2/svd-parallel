@@ -19,6 +19,15 @@ double** read_matrix(FILE* file, int R, int C){ // R rows of matrix, C columns o
     return matrix;
 }
 
+double** alloc_matrix(int M, int N) {
+    double** matrix = (double**)malloc(M * sizeof(double*));
+    for (int i = 0; i < M; i++) {
+        // Use calloc to allocate and initialize all elements to zero
+        matrix[i] = (double*)calloc(N, sizeof(double));
+    }
+    return matrix;
+}
+
 void free_matrix(double** matrix, int R) {
     if (matrix != NULL) {
         for (int i = 0; i < R; i++) {
@@ -165,20 +174,18 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
     MPI_Comm_rank(comm, &rank);
     MPI_Comm_size(comm, &size);
 
-    double AT[N][M] = {0.0};
-    double AAt[M][M] = {0.0};
-    double AtA[N][N] = {0.0};
-    double U[M][M];
-    double Utemp[M][M] = {0.0};
-    double V[N][N];
-    double Vtemp[N][N] = {0.0};
-    double Q_AAt[M][M] = {0.0};
-    double Q_AtA[N][N] = {0.0};
-    double R_AAt[M][M] = {0.0};
-    double R_AtA[N][N] = {0.0};
-    int iterations = 10;
-    double eigvals[N][N] = {0.0};
+    double** AT = alloc_matrix(N, M); // A^T (N x M)
+    double** AAt = alloc_matrix(M, M); // A A^T (M x M)
+    double** AtA = alloc_matrix(N, N); // A^T A (N x N)
+    double** U = alloc_matrix(M, M); // Left Singular Vectors
+    double** V = alloc_matrix(N, N); // Right Singular Vectors
+    double** Q_AAt = alloc_matrix(M, M); 
+    double** R_AAt = alloc_matrix(M, M); 
+    double** Q_AtA = alloc_matrix(N, N);
+    double** R_AtA = alloc_matrix(N, N);
+    double* eigvals = (double*)calloc(N > M ? N : M, sizeof(double)); 
 
+    int iterations = 10; 
 
     if(rank == 0){
         // Compute A transposed 
@@ -311,6 +318,17 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
 
         fflush(stdout);
     }
+    
+    free_matrix(AT, N);
+    free_matrix(AAt, M);
+    free_matrix(AtA, N);
+    free_matrix(U, M);
+    free_matrix(V, N);
+    free_matrix(Q_AAt, M);
+    free_matrix(R_AAt, M);
+    free_matrix(Q_AtA, N);
+    free_matrix(R_AtA, N);
+    free(eigvals);
 }
 
 int main(int argc, char* argv[]){
