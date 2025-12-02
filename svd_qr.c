@@ -12,7 +12,7 @@ void matrix_multiplication(size_t m, size_t n, double A[m][n], double B[n][m], d
 
     int i, j, k; 
     int threads = omp_get_max_threads();
-
+    printf("\nthreads: %d", threads);
     # pragma omp parallel for num_threads(threads) private(i, j, k)
     for (i = 0; i < m; ++i) {
         for (j = 0; j < m; ++j) {
@@ -302,9 +302,6 @@ int main(int argc, char* argv[]){
     MPI_Init(&argc, &argv);
     MPI_Comm_size(MPI_COMM_WORLD, &comm_sz);
     MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
-
-    printf("Process started: rank %d out of %d\n", my_rank, comm_sz);
-    fflush(stdout);
     
     double A[M][N] = {
         {  1.2,  -3.4,   5.6,   0.8,  -2.1,   4.3 },
