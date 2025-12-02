@@ -294,10 +294,6 @@ void QR_SVD(double A[][N], MPI_Comm comm){
 }
 
 int main(){
-
-
-    printf("Process started: rank %d out of %d\n", my_rank, comm_sz);
-    fflush(stdout);
     
     int comm_sz; 
     int my_rank;
@@ -306,6 +302,9 @@ int main(){
     MPI_Init(NULL, NULL);
     MPI_Comm_size(MPI_COMM_WORLD, &comm_sz);
     MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
+
+    printf("Process started: rank %d out of %d\n", my_rank, comm_sz);
+    fflush(stdout);
     
     double A[M][N] = {
         {  1.2,  -3.4,   5.6,   0.8,  -2.1,   4.3 },
