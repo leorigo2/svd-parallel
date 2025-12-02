@@ -8,6 +8,28 @@
 #define M 5 // rows
 #define min(a, b) ((a) < (b) ? (a) : (b))
 
+double** read_matrix(FILE* file, int R, int C){ // R rows of matrix, C columns of matrix
+    double** matrix = (double**)malloc(R * sizeof(double*)); // array of R pointers
+    for (int i = 0; i < R; i++) {
+        matrix[i] = (double*)malloc(C * sizeof(double)); // each rows has C elements
+    }
+    for (int i = 0; i < R; i++) {
+        for (int j = 0; j < C; j++) {
+            fscanf(file, "%lf", &matrix[i][j]);
+        }
+    }
+    return matrix;
+}
+
+void free_matrix(double** matrix, int R) {
+    if (matrix != NULL) {
+        for (int i = 0; i < R; i++) {
+            free(matrix[i]);
+        }
+        free(matrix);
+    }
+}
+
 void matrix_multiplication(size_t m, size_t n, double A[m][n], double B[n][m], double C[m][m]){ // m rows of A, n column of A
 
     int i, j, k; 
@@ -293,36 +315,98 @@ void QR_SVD(double A[][N], MPI_Comm comm){
     }
 }
 
+double* matrix_to_flat(double** matrix, int R, int C) {
+    double* flat_array = (double*)malloc(R * C * sizeof(double));
+    for (int i = 0; i < R; i++) {
+        memcpy(flat_array + (i * C), matrix[i], C * sizeof(double));
+    }
+    return flat_array;
+}
+
+double** flat_to_matrix(double* flat_array, int R, int C) {
+    double** matrix = (double**)malloc(R * sizeof(double*));
+    if (matrix == NULL) return NULL;
+    for (int i = 0; i < R; i++) {
+        matrix[i] = (double*)malloc(C * sizeof(double));
+        memcpy(matrix[i], flat_array + (i * C), C * sizeof(double));
+    }
+    return matrix;
+}
+
 int main(int argc, char* argv[]){
 
     int comm_sz; 
     int my_rank;
     double start_time, end_time, elapsed_time; 
+    int num_matrices = 0;
+
+    int R = 0, C = 0;
+    double** current_matrix = NULL;
+    int elements = 0;
+
+    FILE* dataset = NULL;
+    FILE* results = NULL;
 
     MPI_Init(&argc, &argv);
     MPI_Comm_size(MPI_COMM_WORLD, &comm_sz);
     MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
+
+    if(my_rank == 0){
+        dataset = fopen("dataset.txt", "r");
+        results = fopen("results_parallel.txt", "w");
+
+        fprint(results, "elements time");
     
-    double A[M][N] = {
-        {  1.2,  -3.4,   5.6,   0.8,  -2.1,   4.3 },
-        { -0.7,   2.9,  -4.5,   3.1,   1.0,  -5.2 },
-        {  6.4,   0.3,  -1.8,  -2.6,   4.9,   0.7 },
-        { -3.0,   5.5,   2.2,  -0.9,  -4.1,   1.6 },
-        {  0.4,  -1.7,   3.8,   4.2,  -0.5,  -2.9 }
-    };
+        fscanf(dataset, "%d", &num_matrices); // read the number of matrices in the dataset
+    }
 
-    MPI_Barrier(MPI_COMM_WORLD); // Start all processes
-    start_time = MPI_Wtime();
+    MPI_Bcast(&num_matrices, 1, MPI_INT, 0, MPI_COMM_WORLD);
 
-    QR_SVD(A, MPI_COMM_WORLD);
+    for(int k = 0; k < num_matrices; k++){
+        if(my_rank == 0){
+            fscanf(dataset, "%d %d", &R, &C); // read number of rows and columns
+        }
 
-    MPI_Barrier(MPI_COMM_WORLD); // Wait all processes to finish
-    end_time = MPI_Wtime();
+        MPI_Bcast(&R, 1, MPI_INT, 0, MPI_COMM_WORLD);
+        MPI_Bcast(&C, 1, MPI_INT, 0, MPI_COMM_WORLD);
+        elements = R*C;
 
-    elapsed_time = end_time - start_time;
+        double* flat_matrix = (double*)malloc(element_count * sizeof(double));;
 
-    if (my_rank == 0) {
-        printf("\nTotal execution time: %f seconds\n", elapsed_time);
+        if(my_rank == 0){
+            current_matrix = read_matrix(dataset, R, C);
+            flat_matrix = matrix_to_flat(current_matrix, R, C);
+        }
+
+        MPI_Bcast(flat_matrix, elements, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+
+        if(my_rank != 0){
+            current_matrix = flat_to_matrix(flat_matrix, R, C);
+        }
+
+        free(flat_matrix);
+
+        MPI_Barrier(MPI_COMM_WORLD); // Start all processes
+        start_time = MPI_Wtime();
+
+        QR_SVD(current_matrix, MPI_COMM_WORLD);
+
+        MPI_Barrier(MPI_COMM_WORLD); // Wait all processes to finish
+        end_time = MPI_Wtime();
+
+        elapsed_time = end_time - start_time;
+        
+        if (my_rank == 0) {
+            fprintf(results, "%d %f\n", elements, elapsed_time);
+        }
+
+        free_matrix(current_matrix, R);
+
+    }
+
+    if(my_rank == 0){
+        fclose(dataset);
+        fclose(results);
     }
     
     MPI_Finalize();
