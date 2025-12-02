@@ -8,13 +8,12 @@
 #define M 5 // rows
 #define min(a, b) ((a) < (b) ? (a) : (b))
 
-void matrix_multiplication(size_t m, size_t n, double A[m][n], double B[n][m], double C[m][m], MPI_Comm comm){ // m rows of A, n column of A
+void matrix_multiplication(size_t m, size_t n, double A[m][n], double B[n][m], double C[m][m]){ // m rows of A, n column of A
 
     int i, j, k; 
     int size;
-    MPI_Comm_size(comm, &size);
 
-    # pragma omp parallel for num_threads(size)
+    # pragma omp parallel for private(i, j, k)
     for (i = 0; i < m; ++i) {
         for (j = 0; j < m; ++j) {
             for (k = 0; k < n; ++k) {
@@ -128,7 +127,6 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
 
     }
 
-
     free(Q_i_col);
     free(A_col);
     free(Q_col);
@@ -173,25 +171,9 @@ void QR_SVD(double A[][N], MPI_Comm comm){
         }
 
         // Compute A @ A.T
-        /* for (size_t i = 0; i < M; i++){
-            for (size_t j = 0; j < M; j++){
-                for (size_t k = 0; k < N; k++){
-                    AAt[i][j] += A[i][k] * AT[k][j];
-                    
-                }
-            }
-        } */
         matrix_multiplication(M, N, A, AT, AAt, comm);
 
         // Compute A.T @ A
-        /*for (size_t i = 0; i < N; i++){
-            for (size_t j = 0; j < N; j++){
-                for (size_t k = 0; k < M; k++){
-                    //AtA[i][j] += AT[i][k] * A[k][j];
-                    
-                }
-            }
-        }*/
         matrix_multiplication(N, M, AT, A, AtA, comm);
 
         // Initialize U, V as identity matrices NxN
@@ -217,15 +199,6 @@ void QR_SVD(double A[][N], MPI_Comm comm){
 	    double Anew[M][M] = {0.0};
         // Step 2: New A = R @ Q
         if(rank == 0){
-            
-            /*for (size_t i = 0; i < M; i++){
-                for (size_t j = 0; j < M; j++){
-                    for (size_t k = 0; k < M; k++){
-                        Anew[i][j] += R_AAt[i][k] * Q_AAt[k][j];
-                        
-                    }
-                }
-            }*/
             matrix_multiplication(M, M, R_AAt, Q_AAt, Anew, comm);
 
             for (size_t i = 0; i < M; i++){
@@ -239,14 +212,6 @@ void QR_SVD(double A[][N], MPI_Comm comm){
                 for(size_t j=0;j<M;j++)
                     Utemp[i][j] = 0.0;
 
-            /*for (size_t i = 0; i < M; i++){
-                for (size_t j = 0; j < M; j++){
-                    for (size_t k = 0; k < M; k++){
-                        //Utemp[i][j] += U[i][k] * Q_AAt[k][j];
-                        
-                    }
-                }
-            }*/
             matrix_multiplication(M, M, U, Q_AAt, Utemp, comm);
 
             // Copy Utemp into U
@@ -272,14 +237,6 @@ void QR_SVD(double A[][N], MPI_Comm comm){
 	    double Anew[N][N] = {0.0};
         // Step 2: New A = R @ Q
         if(rank == 0){
-            /*for (size_t i = 0; i < N; i++){
-                for (size_t j = 0; j < N; j++){
-                    for (size_t k = 0; k < N; k++){
-                        //Anew[i][j] += R_AtA[i][k] * Q_AtA[k][j];
-                        
-                    }
-                }
-            }*/
             matrix_multiplication(N, N, R_AtA, Q_AtA, Anew, comm);
 
             for (size_t i = 0; i < N; i++){
@@ -292,14 +249,7 @@ void QR_SVD(double A[][N], MPI_Comm comm){
             for(size_t i=0;i<N;i++)
                 for(size_t j=0;j<N;j++)
                     Vtemp[i][j] = 0.0;
-            /*for (size_t i = 0; i < N; i++){
-                for (size_t j = 0; j < N; j++){
-                    for (size_t k = 0; k < N; k++){
-                        Vtemp[i][j] += V[i][k] * Q_AtA[k][j];
-                        
-                    }
-                }
-            }*/
+
            matrix_multiplication(N, N, V, Q_AtA, Vtemp, comm);
 
             // Copy Vtemp into V
@@ -338,7 +288,7 @@ void QR_SVD(double A[][N], MPI_Comm comm){
             }
         }
         printf("\n");
-        
+
         fflush(stdout);
     }
 }
@@ -353,7 +303,7 @@ int main(){
     MPI_Comm_size(MPI_COMM_WORLD, &comm_sz);
     MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
     
-    double A[5][6] = {
+    double A[M][N] = {
         {  1.2,  -3.4,   5.6,   0.8,  -2.1,   4.3 },
         { -0.7,   2.9,  -4.5,   3.1,   1.0,  -5.2 },
         {  6.4,   0.3,  -1.8,  -2.6,   4.9,   0.7 },
