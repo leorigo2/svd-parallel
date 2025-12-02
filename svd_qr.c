@@ -37,7 +37,7 @@ void free_matrix(double** matrix, int R) {
     }
 }
 
-void matrix_multiplication(size_t m, size_t n, double A[m][n], double B[n][m], double C[m][m]){ // m rows of A, n column of A
+void matrix_multiplication(size_t m, size_t n, double** A, double** B, double** C){ // m rows of A, n column of A
 
     int i, j, k; 
     int threads = omp_get_max_threads();
