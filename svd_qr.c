@@ -185,7 +185,7 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
     double** R_AAt = alloc_matrix(M, M); 
     double** Q_AtA = alloc_matrix(N, N);
     double** R_AtA = alloc_matrix(N, N);
-    double* eigvals = alloc_matrix(N, N); 
+    double** eigvals = alloc_matrix(N, N); 
 
     int iterations = 10; 
 
@@ -225,7 +225,7 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
         // Step 1: QR decomposition
         QR_Decomposition(M, (double *)AAt, (double *)Q_AAt, (double *)R_AAt, comm);
 
-	    double Anew = alloc_matrix(M, M);
+	    double** Anew = alloc_matrix(M, M);
         // Step 2: New A = R @ Q
         if(rank == 0){
             matrix_multiplication(M, M, R_AAt, Q_AAt, Anew);
@@ -250,7 +250,7 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
                 }
             }
         }
-        free_matrix(Anew);
+        free_matrix(Anew, M);
     }
 
     if(rank == 0){
@@ -264,7 +264,7 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
         // Step 1: QR decomposition
         QR_Decomposition(N, (double *)AtA, (double *)Q_AtA, (double *)R_AtA, comm);
 
-	    double Anew = alloc_matrix(N, N);
+	    double** Anew = alloc_matrix(N, N);
         // Step 2: New A = R @ Q
         if(rank == 0){
             matrix_multiplication(N, N, R_AtA, Q_AtA, Anew);
@@ -289,7 +289,7 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
                 }
             }
         }
-        free_matrix(Anew);
+        free_matrix(Anew, N);
     }
 
     if(rank == 0){
