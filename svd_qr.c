@@ -293,13 +293,13 @@ void QR_SVD(double A[][N], MPI_Comm comm){
     }
 }
 
-int main(){
-    
+int main(int argc, char* argv[]){
+
     int comm_sz; 
     int my_rank;
     double start_time, end_time, elapsed_time; 
 
-    MPI_Init(NULL, NULL);
+    MPI_Init(&argc, &argv);
     MPI_Comm_size(MPI_COMM_WORLD, &comm_sz);
     MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
 
