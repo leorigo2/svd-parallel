@@ -178,12 +178,14 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
     double** AAt = alloc_matrix(M, M); // A A^T (M x M)
     double** AtA = alloc_matrix(N, N); // A^T A (N x N)
     double** U = alloc_matrix(M, M); // Left Singular Vectors
+    double** Utemp = alloc_matrix(M, M);
     double** V = alloc_matrix(N, N); // Right Singular Vectors
+    double** Vtemp = alloc_matrix(N, N);
     double** Q_AAt = alloc_matrix(M, M); 
     double** R_AAt = alloc_matrix(M, M); 
     double** Q_AtA = alloc_matrix(N, N);
     double** R_AtA = alloc_matrix(N, N);
-    double* eigvals = (double*)calloc(N > M ? N : M, sizeof(double)); 
+    double* eigvals = alloc_matrix(N, N); 
 
     int iterations = 10; 
 
@@ -223,7 +225,7 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
         // Step 1: QR decomposition
         QR_Decomposition(M, (double *)AAt, (double *)Q_AAt, (double *)R_AAt, comm);
 
-	    double Anew[M][M] = {0.0};
+	    double Anew = alloc_matrix(M, M);
         // Step 2: New A = R @ Q
         if(rank == 0){
             matrix_multiplication(M, M, R_AAt, Q_AAt, Anew);
@@ -248,6 +250,7 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
                 }
             }
         }
+        free_matrix(Anew);
     }
 
     if(rank == 0){
@@ -261,7 +264,7 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
         // Step 1: QR decomposition
         QR_Decomposition(N, (double *)AtA, (double *)Q_AtA, (double *)R_AtA, comm);
 
-	    double Anew[N][N] = {0.0};
+	    double Anew = alloc_matrix(N, N);
         // Step 2: New A = R @ Q
         if(rank == 0){
             matrix_multiplication(N, N, R_AtA, Q_AtA, Anew);
@@ -286,11 +289,12 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
                 }
             }
         }
+        free_matrix(Anew);
     }
 
     if(rank == 0){
         int mat_rank = min(N, M);
-        printf("Eigenvalues:");
+        printf("Eigenvalues:\n");
         for (size_t i = 0; i < N; i++){
             printf("\n");
             for (size_t j = 0; j < N; j++){
@@ -323,7 +327,9 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
     free_matrix(AAt, M);
     free_matrix(AtA, N);
     free_matrix(U, M);
+    free_matrix(Utemp, M);
     free_matrix(V, N);
+    free_matrix(Vtemp, N);
     free_matrix(Q_AAt, M);
     free_matrix(R_AAt, M);
     free_matrix(Q_AtA, N);
@@ -353,7 +359,7 @@ int main(int argc, char* argv[]){
         dataset = fopen("dataset.txt", "r");
         results = fopen("results_parallel.txt", "w");
 
-        fprint(results, "elements time");
+        fprintf(results, "elements time");
     
         fscanf(dataset, "%d", &num_matrices); // read the number of matrices in the dataset
     }
