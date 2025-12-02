@@ -4,8 +4,8 @@
 #include <omp.h>
 #include <mpi.h>
 
-#define N 3  // columns    
-#define M 4 // rows
+#define N 6  // columns    
+#define M 5 // rows
 #define min(a, b) ((a) < (b) ? (a) : (b))
 
 void matrix_multiplication(size_t m, size_t n, double A[m][n], double B[n][m], double C[m][m], MPI_Comm comm){ // m rows of A, n column of A
@@ -345,21 +345,35 @@ int main(){
 
     int comm_sz; 
     int my_rank;
+    double start_time, end_time, elapsed_time; // Variables for timing
 
     MPI_Init(NULL, NULL);
     MPI_Comm_size(MPI_COMM_WORLD, &comm_sz);
     MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
-    double A[M][N] = {
-        {1, 2, 1},
-        {2, 1, 4},
-        {3, 10, 1},
-        {1, 2, 0}
+    
+    // Set up the matrix A
+    double A[5][6] = {
+        {  1.2,  -3.4,   5.6,   0.8,  -2.1,   4.3 },
+        { -0.7,   2.9,  -4.5,   3.1,   1.0,  -5.2 },
+        {  6.4,   0.3,  -1.8,  -2.6,   4.9,   0.7 },
+        { -3.0,   5.5,   2.2,  -0.9,  -4.1,   1.6 },
+        {  0.4,  -1.7,   3.8,   4.2,  -0.5,  -2.9 }
     };
 
-    
+    MPI_Barrier(MPI_COMM_WORLD); // Start all processes
+    start_time = MPI_Wtime();
+
     QR_SVD(A, MPI_COMM_WORLD);
 
+    MPI_Barrier(MPI_COMM_WORLD); // Wait all processes to finish
+    end_time = MPI_Wtime();
+
+    elapsed_time = end_time - start_time;
+
+    if (my_rank == 0) {
+        printf("\nTotal execution time: %f seconds\n", elapsed_time);
+    }
+    
     MPI_Finalize();
     return 0;
 }
-
