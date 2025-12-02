@@ -6,4 +6,5 @@
 # set the queue
 #PBS -q short_cpuQ
 module load mpich-3.2
-mpirun -n 2 ./svd-parallel/svd_qr.exe
+mpiexec -n 2 ./svd-parallel/svd_qr.exe
+
