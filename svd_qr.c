@@ -8,10 +8,6 @@
 
 double** read_matrix(FILE* file, int R, int C){ // R rows of matrix, C columns of matrix
     double** matrix = (double**)malloc(R * sizeof(double*)); // array of R pointers
-    if (file == NULL) {
-        fprintf(stderr, "Error: read_matrix called with NULL file pointer.\n");
-        return NULL;
-    }
     for (int i = 0; i < R; i++) {
         matrix[i] = (double*)malloc(C * sizeof(double)); // each rows has C elements
     }
@@ -364,8 +360,8 @@ int main(int argc, char* argv[]){
         results = fopen("results_parallel.txt", "w");
 
         fprintf(results, "elements time");
-    
-        fscanf(dataset, "%d", &num_matrices); // read the number of matrices in the dataset
+        num_matrices = 30;
+        //fscanf(dataset, "%d", &num_matrices); // read the number of matrices in the dataset
     }
 
     MPI_Bcast(&num_matrices, 1, MPI_INT, 0, MPI_COMM_WORLD);
