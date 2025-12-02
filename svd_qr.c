@@ -8,6 +8,10 @@
 
 double** read_matrix(FILE* file, int R, int C){ // R rows of matrix, C columns of matrix
     double** matrix = (double**)malloc(R * sizeof(double*)); // array of R pointers
+    if (file == NULL) {
+        fprintf(stderr, "Error: read_matrix called with NULL file pointer.\n");
+        return NULL;
+    }
     for (int i = 0; i < R; i++) {
         matrix[i] = (double*)malloc(C * sizeof(double)); // each rows has C elements
     }
