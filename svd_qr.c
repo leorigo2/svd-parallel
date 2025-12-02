@@ -360,7 +360,6 @@ int main(int argc, char* argv[]){
         results = fopen("./svd-parallel/results_parallel.txt", "w");
 
         fprintf(results, "elements time");
-        fclose(results);
         fscanf(dataset, "%d", &num_matrices); // read the number of matrices in the dataset
     }
 
@@ -375,9 +374,7 @@ int main(int argc, char* argv[]){
         MPI_Bcast(&C, 1, MPI_INT, 0, MPI_COMM_WORLD);
         elements = R*C;
 
-        if(my_rank == 0){
-            current_matrix = read_matrix(dataset, R, C);
-        }
+        current_matrix = read_matrix(dataset, R, C);
 
         MPI_Barrier(MPI_COMM_WORLD); // Start all processes
         start_time = MPI_Wtime();
