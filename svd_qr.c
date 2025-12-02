@@ -295,6 +295,10 @@ void QR_SVD(double A[][N], MPI_Comm comm){
 
 int main(){
 
+
+    printf("Process started: rank %d out of %d\n", my_rank, comm_sz);
+    fflush(stdout);
+    
     int comm_sz; 
     int my_rank;
     double start_time, end_time, elapsed_time; 
