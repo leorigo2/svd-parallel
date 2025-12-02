@@ -313,24 +313,6 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
     }
 }
 
-double* matrix_to_flat(double** matrix, int R, int C) {
-    double* flat_array = (double*)malloc(R * C * sizeof(double));
-    for (int i = 0; i < R; i++) {
-        memcpy(flat_array + (i * C), matrix[i], C * sizeof(double));
-    }
-    return flat_array;
-}
-
-double** flat_to_matrix(double* flat_array, int R, int C) {
-    double** matrix = (double**)malloc(R * sizeof(double*));
-    if (matrix == NULL) return NULL;
-    for (int i = 0; i < R; i++) {
-        matrix[i] = (double*)malloc(C * sizeof(double));
-        memcpy(matrix[i], flat_array + (i * C), C * sizeof(double));
-    }
-    return matrix;
-}
-
 int main(int argc, char* argv[]){
 
     int comm_sz; 
@@ -369,20 +351,9 @@ int main(int argc, char* argv[]){
         MPI_Bcast(&C, 1, MPI_INT, 0, MPI_COMM_WORLD);
         elements = R*C;
 
-        double* flat_matrix = (double*)malloc(elements * sizeof(double));;
-
         if(my_rank == 0){
             current_matrix = read_matrix(dataset, R, C);
-            flat_matrix = matrix_to_flat(current_matrix, R, C);
         }
-
-        MPI_Bcast(flat_matrix, elements, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-
-        if(my_rank != 0){
-            current_matrix = flat_to_matrix(flat_matrix, R, C);
-        }
-
-        free(flat_matrix);
 
         MPI_Barrier(MPI_COMM_WORLD); // Start all processes
         start_time = MPI_Wtime();
