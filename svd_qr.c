@@ -356,8 +356,8 @@ int main(int argc, char* argv[]){
     MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
 
     if(my_rank == 0){
-        dataset = fopen("/svd-parallel/dataset.txt", "r");
-        results = fopen("/svd-parallel/results_parallel.txt", "w");
+        dataset = fopen("./svd-parallel/dataset.txt", "r");
+        results = fopen("./svd-parallel/results_parallel.txt", "w");
         if (!dataset) {
             printf("Aborting daataset\n");
             MPI_Abort(MPI_COMM_WORLD, 1);
