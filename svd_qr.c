@@ -358,10 +358,18 @@ int main(int argc, char* argv[]){
     if(my_rank == 0){
         dataset = fopen("dataset.txt", "r");
         results = fopen("results_parallel.txt", "w");
+        if (!dataset) {
+            printf("Aborting daataset\n");
+            MPI_Abort(MPI_COMM_WORLD, 1);
+        }
+        if (!results) {
+            printf("Aborting resuots\n");
+            MPI_Abort(MPI_COMM_WORLD, 1);
+        }
+
 
         fprintf(results, "elements time");
-        num_matrices = 30;
-        //fscanf(dataset, "%d", &num_matrices); // read the number of matrices in the dataset
+        fscanf(dataset, "%d", &num_matrices); // read the number of matrices in the dataset
     }
 
     MPI_Bcast(&num_matrices, 1, MPI_INT, 0, MPI_COMM_WORLD);
