@@ -358,17 +358,9 @@ int main(int argc, char* argv[]){
     if(my_rank == 0){
         dataset = fopen("./svd-parallel/dataset.txt", "r");
         results = fopen("./svd-parallel/results_parallel.txt", "w");
-        if (!dataset) {
-            printf("Aborting daataset\n");
-            MPI_Abort(MPI_COMM_WORLD, 1);
-        }
-        if (!results) {
-            printf("Aborting resuots\n");
-            MPI_Abort(MPI_COMM_WORLD, 1);
-        }
-
 
         fprintf(results, "elements time");
+        fclose(results);
         fscanf(dataset, "%d", &num_matrices); // read the number of matrices in the dataset
     }
 
