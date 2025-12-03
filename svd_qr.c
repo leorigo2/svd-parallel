@@ -377,7 +377,7 @@ int main(int argc, char* argv[]){
         double **current_matrix = alloc_matrix(R, C);
 
         if(my_rank == 0){
-            current_matrix = read_matrix(dataset, R, C, current_matrix);
+            read_matrix(dataset, R, C, current_matrix);
         }
 
         MPI_Barrier(MPI_COMM_WORLD); // Start all processes
