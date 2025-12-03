@@ -19,13 +19,18 @@ double** read_matrix(FILE* file, int R, int C){ // R rows of matrix, C columns o
     return matrix;
 }
 
-double** alloc_matrix(int M, int N) {
-    double** matrix = (double**)malloc(M * sizeof(double*));
-    for (int i = 0; i < M; i++) {
-        // Use calloc to allocate and initialize all elements to zero
-        matrix[i] = (double*)calloc(N, sizeof(double));
+double** alloc_matrix(int rows, int cols) {
+
+    double *data = (double *)calloc(rows * cols, sizeof(double));
+    if (!data) return NULL; 
+
+    double **array = (double **)calloc(rows, sizeof(double*));
+    if (!array) { free(data); return NULL; } 
+
+    for (int i = 0; i < rows; i++) {
+        array[i] = &(data[i * cols]);
     }
-    return matrix;
+    return array; 
 }
 
 void free_matrix(double** matrix, int R) {
