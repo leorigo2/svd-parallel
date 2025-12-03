@@ -189,7 +189,7 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
 
     int iterations = 10; 
 
-    if(rank == 100){
+    if(rank == 0){
         // Compute A transposed 
         for (size_t i = 0; i < M; i++)
         {
