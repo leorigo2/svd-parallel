@@ -91,7 +91,7 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
 
         if(rank==0){
             for(size_t j=0; j<n; j++){ // i-th column of A
-                A_col[j] = A[j * n + i];
+                A_col[j] = A[j][i];
             }
         }
         
@@ -104,7 +104,7 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
 
             if(rank == 0){
                 for(int i_q = 0; i_q < n; i_q++){ // j-th column of Q
-                    Q_col[i_q] = Q[i_q * n + j];
+                    Q_col[i_q] = Q[i_q][j];
                 }
             }
 
@@ -118,7 +118,7 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
             double global_dot = 0.0;
             MPI_Allreduce(&local_dot, &global_dot, 1, MPI_DOUBLE, MPI_SUM, comm);
             
-            if(rank==0) R[j * n + i] = global_dot;
+            if(rank==0) R[j][i] = global_dot;
 
             for (size_t k = start; k < end; k++)
                 u_local[k - start] -= global_dot * Q_col[k];
@@ -134,7 +134,7 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
 
         double norm = sqrt(global_norm);
 
-        if (rank == 0) R[i * n + i] = norm;
+        if (rank == 0) R[i][i] = norm;
 
         for (size_t k = 0; k < rows_per_proc; k++){
             Q_i_col[k] = (norm == 0) ? 0.0 : u_local[k] / norm;
@@ -153,7 +153,7 @@ void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) 
 
                 for (int rr = 0; rr < elements_count; rr++) {
                     size_t global_row = global_start + rr; // compute the row for each element
-                    Q[global_row * n + i] = recv_col_buffer[displacement + rr]; // put each element in Q[row][i] so i-th column of Q
+                    Q[global_row][i] = recv_col_buffer[displacement + rr]; // put each element in Q[row][i] so i-th column of Q
                 }
             }
         }   
@@ -227,7 +227,7 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
     // Compute AAt eigenvector and eigenvalues via QR Decomposition
     for(int iter = 0; iter < iterations; iter++){
         // Step 1: QR decomposition
-        QR_Decomposition(M, (double *)AAt, (double *)Q_AAt, (double *)R_AAt, comm);
+        QR_Decomposition(M, AAt, Q_AAt, R_AAt, comm);
 
 	    double** Anew = alloc_matrix(M, M);
         // Step 2: New A = R @ Q
