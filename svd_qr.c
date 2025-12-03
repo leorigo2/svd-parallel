@@ -6,17 +6,12 @@
 
 #define min(a, b) ((a) < (b) ? (a) : (b))
 
-double** read_matrix(FILE* file, int R, int C){ // R rows of matrix, C columns of matrix
-    double** matrix = (double**)malloc(R * sizeof(double*)); // array of R pointers
-    for (int i = 0; i < R; i++) {
-        matrix[i] = (double*)malloc(C * sizeof(double)); // each rows has C elements
-    }
+void read_matrix(FILE* file, int R, int C, double** matrix){ // R rows of matrix, C columns of matrix
     for (int i = 0; i < R; i++) {
         for (int j = 0; j < C; j++) {
             fscanf(file, "%lf", &matrix[i][j]);
         }
     }
-    return matrix;
 }
 
 double** alloc_matrix(int rows, int cols) {
@@ -349,7 +344,7 @@ int main(int argc, char* argv[]){
     int num_matrices = 0;
 
     int R = 0, C = 0;
-    double** current_matrix = NULL;
+    // double** current_matrix = NULL;
     int elements = 0;
 
     FILE* dataset = NULL;
@@ -379,8 +374,10 @@ int main(int argc, char* argv[]){
         MPI_Bcast(&C, 1, MPI_INT, 0, MPI_COMM_WORLD);
         elements = R*C;
 
+        double **current_matrix = alloc_matrix(R, C);
+
         if(my_rank == 0){
-            current_matrix = read_matrix(dataset, R, C);
+            current_matrix = read_matrix(dataset, R, C, current_matrix);
         }
 
         MPI_Barrier(MPI_COMM_WORLD); // Start all processes
