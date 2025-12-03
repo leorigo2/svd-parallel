@@ -397,7 +397,7 @@ int main(int argc, char* argv[]){
             fprintf(results, "%d %f\n", elements, elapsed_time);
         }
 
-        free_matrix(current_matrix, R);
+        if(my_rank == 0) free_matrix(current_matrix, R);
 
     }
 
