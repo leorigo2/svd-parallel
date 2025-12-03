@@ -226,7 +226,7 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
 
 	    double** Anew = alloc_matrix(M, M);
         // Step 2: New A = R @ Q
-        if(rank == 100){
+        if(rank == 0){
             matrix_multiplication(M, M, R_AAt, Q_AAt, Anew);
 
             for (size_t i = 0; i < M; i++){
@@ -252,7 +252,7 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
         free_matrix(Anew, M);
     }
 
-    if(rank == 100){
+    if(rank == 0){
         for (size_t i = 0; i < M; i++)
             eigvals[i][i] = AAt[i][i];
     }
