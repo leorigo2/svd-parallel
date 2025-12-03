@@ -378,7 +378,7 @@ int main(int argc, char* argv[]){
         MPI_Barrier(MPI_COMM_WORLD); // Start all processes
         start_time = MPI_Wtime();
 
-        // QR_SVD(current_matrix, R, C, MPI_COMM_WORLD);
+        QR_SVD(current_matrix, R, C, MPI_COMM_WORLD);
 
         MPI_Barrier(MPI_COMM_WORLD); // Wait all processes to finish
         end_time = MPI_Wtime();
