@@ -227,7 +227,7 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
     // Compute AAt eigenvector and eigenvalues via QR Decomposition
     for(int iter = 0; iter < iterations; iter++){
         // Step 1: QR decomposition
-        QR_Decomposition(M, AAt, Q_AAt, R_AAt, comm);
+        //QR_Decomposition(M, AAt, Q_AAt, R_AAt, comm);
 
 	    double** Anew = alloc_matrix(M, M);
         // Step 2: New A = R @ Q
@@ -266,7 +266,7 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
     // Compute AtA eigenvector
     for(int iter = 0; iter < iterations; iter++){
         // Step 1: QR decomposition
-        QR_Decomposition(N, AtA, Q_AtA, R_AtA, comm);
+        //QR_Decomposition(N, AtA, Q_AtA, R_AtA, comm);
 
 	    double** Anew = alloc_matrix(N, N);
         // Step 2: New A = R @ Q
