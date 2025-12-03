@@ -189,7 +189,7 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
 
     int iterations = 10; 
 
-    if(rank == 0){
+    if(rank == 100){
         // Compute A transposed 
         for (size_t i = 0; i < M; i++)
         {
@@ -227,7 +227,7 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
 
 	    double** Anew = alloc_matrix(M, M);
         // Step 2: New A = R @ Q
-        if(rank == 0){
+        if(rank == 100){
             matrix_multiplication(M, M, R_AAt, Q_AAt, Anew);
 
             for (size_t i = 0; i < M; i++){
@@ -253,7 +253,7 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
         free_matrix(Anew, M);
     }
 
-    if(rank == 0){
+    if(rank == 100){
         for (size_t i = 0; i < M; i++)
             eigvals[i][i] = AAt[i][i];
     }
@@ -266,7 +266,7 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
 
 	    double** Anew = alloc_matrix(N, N);
         // Step 2: New A = R @ Q
-        if(rank == 0){
+        if(rank == 100){
             matrix_multiplication(N, N, R_AtA, Q_AtA, Anew);
 
             for (size_t i = 0; i < N; i++){
@@ -292,7 +292,7 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
         free_matrix(Anew, N);
     }
 
-    if(rank == 0){
+    if(rank == 100){
         int mat_rank = min(N, M);
         printf("Eigenvalues:\n");
         for (size_t i = 0; i < N; i++){
