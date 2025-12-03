@@ -184,7 +184,7 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
     double** R_AAt = alloc_matrix(M, M); 
     double** Q_AtA = alloc_matrix(N, N);
     double** R_AtA = alloc_matrix(N, N);
-    double** eigvals = alloc_matrix(N, N); 
+    double** eigvals = alloc_matrix(M, M); 
 
     int iterations = 10; 
 
@@ -265,7 +265,7 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
 
 	    double** Anew = alloc_matrix(N, N);
         // Step 2: New A = R @ Q
-        if(rank == 100){
+        if(rank == 0){
             matrix_multiplication(N, N, R_AtA, Q_AtA, Anew);
 
             for (size_t i = 0; i < N; i++){
@@ -291,7 +291,7 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
         free_matrix(Anew, N);
     }
 
-    if(rank == 100){
+    if(rank == 0){
         int mat_rank = min(N, M);
         printf("Eigenvalues:\n");
         for (size_t i = 0; i < N; i++){
@@ -333,7 +333,7 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
     free_matrix(R_AAt, M);
     free_matrix(Q_AtA, N);
     free_matrix(R_AtA, N);
-    free(eigvals);
+    free_matrix(eigvals, M);
 }
 
 int main(int argc, char* argv[]){
