@@ -365,11 +365,12 @@ int main(int argc, char* argv[]){
             fscanf(dataset, "%d %d", &R, &C); // read number of rows and columns
         }
 
+        MPI_Barrier(MPI_COMM_WORLD);
+
         MPI_Bcast(&R, 1, MPI_INT, 0, MPI_COMM_WORLD);
         MPI_Bcast(&C, 1, MPI_INT, 0, MPI_COMM_WORLD);
+        
         elements = R*C;
-
-        printf("\nR, C: %d %d\n", R, C);
 
         double** current_matrix = alloc_matrix(R, C);
 
