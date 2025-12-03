@@ -30,11 +30,11 @@ def generate_and_save_dataset():
             for i in range(NUM_MATRICES):
                 # Randomly determine dimensions (e.g., between 2x2 and 10x10)
                 R = random.randint(1, 10)
-                C = R
+                C = random.randint(1, 10)
                 
                 # Generate a random matrix with real (float) values
                 # Values will be between -10.0 and 10.0 for variety
-                matrix = np.random.uniform(0.0, 0.0, (R, C))
+                matrix = np.random.uniform(-10.0, 10.0, (R, C))
                 
                 # 2a. Write the dimensions (R C)
                 f.write(f"{R} {C}\n")
@@ -43,7 +43,7 @@ def generate_and_save_dataset():
                 for row in matrix:
                     # np.savetxt is excellent for formatting float output clearly
                     # We use '%.6f' to ensure consistent precision for C parsing
-                    row_str = " ".join(f"{x:.6f}" for x in row)
+                    row_str = " ".join(f"{x:.2f}" for x in row)
                     f.write(f"{row_str}\n")
                     
                 print(f"  - Generated matrix {i+1}/{NUM_MATRICES}: {R} rows x {C} columns")

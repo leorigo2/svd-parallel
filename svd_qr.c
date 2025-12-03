@@ -372,16 +372,18 @@ int main(int argc, char* argv[]){
         
         elements = R*C;
 
+        printf("\nR, C: %d %d\n", R, C);
+
         double** current_matrix = alloc_matrix(R, C);
 
         if(my_rank == 0){
-            read_matrix(dataset, R, C, current_matrix);
+            //read_matrix(dataset, R, C, current_matrix);
         }
 
         MPI_Barrier(MPI_COMM_WORLD); // Start all processes
         start_time = MPI_Wtime();
 
-        QR_SVD(current_matrix, R, C, MPI_COMM_WORLD);
+        //QR_SVD(current_matrix, R, C, MPI_COMM_WORLD);
 
         MPI_Barrier(MPI_COMM_WORLD); // Wait all processes to finish
         end_time = MPI_Wtime();
