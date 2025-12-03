@@ -360,7 +360,7 @@ int main(int argc, char* argv[]){
 
     MPI_Bcast(&num_matrices, 1, MPI_INT, 0, MPI_COMM_WORLD);
 
-    for(int k = 0; k < 2; k++){
+    for(int k = 0; k < num_matrices; k++){
         if(my_rank == 0){
             fscanf(dataset, "%d %d", &R, &C); // read number of rows and columns
         }
