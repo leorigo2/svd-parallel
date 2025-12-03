@@ -359,7 +359,7 @@ int main(int argc, char* argv[]){
         dataset = fopen("./svd-parallel/dataset.txt", "r");
         results = fopen("./svd-parallel/results_parallel.txt", "w");
 
-        fprintf(results, "elements time");
+        fprintf(results, "elements time\n");
 
         fscanf(dataset, "%d", &num_matrices); // read the number of matrices in the dataset
     }
@@ -382,7 +382,7 @@ int main(int argc, char* argv[]){
         MPI_Barrier(MPI_COMM_WORLD); // Start all processes
         start_time = MPI_Wtime();
 
-        if(my_rank == 0) QR_SVD(current_matrix, R, C, MPI_COMM_WORLD);
+        QR_SVD(current_matrix, R, C, MPI_COMM_WORLD);
 
         MPI_Barrier(MPI_COMM_WORLD); // Wait all processes to finish
         end_time = MPI_Wtime();
