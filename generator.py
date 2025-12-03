@@ -29,12 +29,12 @@ def generate_and_save_dataset():
             
             for i in range(NUM_MATRICES):
                 # Randomly determine dimensions (e.g., between 2x2 and 10x10)
-                R = random.randint(2, 10)
-                C = random.randint(2, 10)
+                R = random.randint(2, 2)
+                C = random.randint(2, 2)
                 
                 # Generate a random matrix with real (float) values
                 # Values will be between -10.0 and 10.0 for variety
-                matrix = np.random.uniform(-10.0, 10.0, (R, C))
+                matrix = np.random.uniform(0.0, 0.0, (R, C))
                 
                 # 2a. Write the dimensions (R C)
                 f.write(f"{R} {C}\n")
