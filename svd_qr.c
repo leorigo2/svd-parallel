@@ -369,6 +369,8 @@ int main(int argc, char* argv[]){
         MPI_Bcast(&C, 1, MPI_INT, 0, MPI_COMM_WORLD);
         elements = R*C;
 
+        printf("\nR, C: %d %d\n", R, C);
+
         double** current_matrix = alloc_matrix(R, C);
 
         if(my_rank == 0){
