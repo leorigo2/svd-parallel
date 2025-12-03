@@ -57,7 +57,7 @@ void matrix_multiplication(size_t m, size_t n, double** A, double** B, double** 
 
 }
 
-void QR_Decomposition(size_t n, double *A, double *Q, double *R, MPI_Comm comm) {
+void QR_Decomposition(size_t n, double **A, double **Q, double **R, MPI_Comm comm) {
 
     int rank, size;
 
@@ -266,7 +266,7 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
     // Compute AtA eigenvector
     for(int iter = 0; iter < iterations; iter++){
         // Step 1: QR decomposition
-        QR_Decomposition(N, (double *)AtA, (double *)Q_AtA, (double *)R_AtA, comm);
+        QR_Decomposition(N, AtA, Q_AtA, R_AtA, comm);
 
 	    double** Anew = alloc_matrix(N, N);
         // Step 2: New A = R @ Q
