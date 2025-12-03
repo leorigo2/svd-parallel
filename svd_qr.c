@@ -200,10 +200,10 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
         }
 
         // Compute A @ A.T
-        //matrix_multiplication(M, N, A, AT, AAt);
+        matrix_multiplication(M, N, A, AT, AAt);
 
         // Compute A.T @ A
-        //matrix_multiplication(N, M, AT, A, AtA);
+        matrix_multiplication(N, M, AT, A, AtA);
 
         // Initialize U, V as identity matrices NxN
         for (size_t i = 0; i < M; i++) {
@@ -223,12 +223,12 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
     // Compute AAt eigenvector and eigenvalues via QR Decomposition
     for(int iter = 0; iter < iterations; iter++){
         // Step 1: QR decomposition
-        QR_Decomposition(M, (double *)AAt, (double *)Q_AAt, (double *)R_AAt, comm);
+        //QR_Decomposition(M, (double *)AAt, (double *)Q_AAt, (double *)R_AAt, comm);
 
 	    double** Anew = alloc_matrix(M, M);
         // Step 2: New A = R @ Q
         if(rank == 0){
-            //matrix_multiplication(M, M, R_AAt, Q_AAt, Anew);
+            matrix_multiplication(M, M, R_AAt, Q_AAt, Anew);
 
             for (size_t i = 0; i < M; i++){
                 for (size_t j = 0; j < M; j++){
@@ -241,7 +241,7 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
                 for(size_t j=0;j<M;j++)
                     Utemp[i][j] = 0.0;
 
-            //matrix_multiplication(M, M, U, Q_AAt, Utemp);
+            matrix_multiplication(M, M, U, Q_AAt, Utemp);
 
             // Copy Utemp into U
             for (size_t i = 0; i < M; i++){
@@ -262,12 +262,12 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
     // Compute AtA eigenvector
     for(int iter = 0; iter < iterations; iter++){
         // Step 1: QR decomposition
-        QR_Decomposition(N, (double *)AtA, (double *)Q_AtA, (double *)R_AtA, comm);
+        //QR_Decomposition(N, (double *)AtA, (double *)Q_AtA, (double *)R_AtA, comm);
 
 	    double** Anew = alloc_matrix(N, N);
         // Step 2: New A = R @ Q
         if(rank == 0){
-            //matrix_multiplication(N, N, R_AtA, Q_AtA, Anew);
+            matrix_multiplication(N, N, R_AtA, Q_AtA, Anew);
 
             for (size_t i = 0; i < N; i++){
                 for (size_t j = 0; j < N; j++){
@@ -280,7 +280,7 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
                 for(size_t j=0;j<N;j++)
                     Vtemp[i][j] = 0.0;
 
-           //matrix_multiplication(N, N, V, Q_AtA, Vtemp);
+           matrix_multiplication(N, N, V, Q_AtA, Vtemp);
 
             // Copy Vtemp into V
             for (size_t i = 0; i < N; i++){
