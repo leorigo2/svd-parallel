@@ -289,9 +289,9 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
     if(rank == 0){
         int mat_rank = min(N, M);
         printf("Eigenvalues:\n");
-        for (size_t i = 0; i < N; i++){
+        for (size_t i = 0; i < M; i++){
             printf("\n");
-            for (size_t j = 0; j < N; j++){
+            for (size_t j = 0; j < M; j++){
                 if(i==j) printf("%f   ", sqrt(eigvals[i][j]));
             }
         }
