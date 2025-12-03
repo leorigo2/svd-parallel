@@ -15,17 +15,12 @@ void read_matrix(FILE* file, int R, int C, double** matrix){ // R rows of matrix
 }
 
 double** alloc_matrix(int rows, int cols) {
-
-    double *data = (double *)calloc(rows * cols, sizeof(double));
-    if (!data) return NULL; 
-
-    double **array = (double **)calloc(rows, sizeof(double*));
-    if (!array) { free(data); return NULL; } 
+    double **matrix = (double **)malloc(rows * sizeof(double*));
 
     for (int i = 0; i < rows; i++) {
-        array[i] = &(data[i * cols]);
+        matrix[i] = (double*)calloc(cols, sizeof(double));
     }
-    return array; 
+    return matrix; 
 }
 
 void free_matrix(double** matrix, int R) {
@@ -377,7 +372,7 @@ int main(int argc, char* argv[]){
         double** current_matrix = alloc_matrix(R, C);
 
         if(my_rank == 0){
-            //read_matrix(dataset, R, C, current_matrix);
+            // read_matrix(dataset, R, C, current_matrix);
         }
 
         MPI_Barrier(MPI_COMM_WORLD); // Start all processes
