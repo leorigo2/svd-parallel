@@ -3,11 +3,36 @@
 #include <math.h>
 #include <time.h>
 
-#define N 6  // Example size; can be changed
-#define M 5
 #define min(a, b) ((a) < (b) ? (a) : (b))
 
-void QR_Decomposition(size_t n, double A[][n], double Q[][n], double R[][n]) {
+void read_matrix(FILE* file, int R, int C, double** matrix){ // R rows of matrix, C columns of matrix
+    for (int i = 0; i < R; i++) {
+        for (int j = 0; j < C; j++) {
+            fscanf(file, "%lf", &matrix[i][j]);
+        }
+    }
+}
+
+double** alloc_matrix(int rows, int cols) {
+    double **matrix = (double **)malloc(rows * sizeof(double*));
+
+    for (int i = 0; i < rows; i++) {
+        matrix[i] = (double*)calloc(cols, sizeof(double));
+    }
+    return matrix; 
+}
+
+void free_matrix(double** matrix, int R) {
+    if (matrix != NULL) {
+        for (int i = 0; i < R; i++) {
+            free(matrix[i]);
+        }
+        free(matrix);
+    }
+}
+
+
+void QR_Decomposition(size_t n, double **A, double **Q, double **R) {
     for (size_t i = 0; i < n; i++)
         for (size_t j = 0; j < n; j++)
             R[i][j] = 0.0;
@@ -47,20 +72,22 @@ void QR_Decomposition(size_t n, double A[][n], double Q[][n], double R[][n]) {
 }
 
 
-void QR_SVD(double A[][N]){
-    double AT[N][M] = {0};
-    double AAt[M][M] = {0};
-    double AtA[N][N] = {0};
-    double U[M][M];
-    double Utemp[M][M] = {0};
-    double V[N][N];
-    double Vtemp[N][N] = {0};
-    double Q_AAt[M][M] = {0};
-    double Q_AtA[N][N] = {0};
-    double R_AAt[M][M] = {0};
-    double R_AtA[N][N] = {0};
+void QR_SVD(double** A, int M, int N){
+
+    double** AT = alloc_matrix(N, M); // A^T (N x M)
+    double** AAt = alloc_matrix(M, M); // A A^T (M x M)
+    double** AtA = alloc_matrix(N, N); // A^T A (N x N)
+    double** U = alloc_matrix(M, M); // Left Singular Vectors
+    double** Utemp = alloc_matrix(M, M);
+    double** V = alloc_matrix(N, N); // Right Singular Vectors
+    double** Vtemp = alloc_matrix(N, N);
+    double** Q_AAt = alloc_matrix(M, M); 
+    double** R_AAt = alloc_matrix(M, M); 
+    double** Q_AtA = alloc_matrix(N, N);
+    double** R_AtA = alloc_matrix(N, N);
+    double** eigvals = alloc_matrix(M, M); 
+
     int iterations = 10;
-    double eigvals[N][N] = {0};
 
     // Compute A transposed 
     for (size_t i = 0; i < M; i++)
@@ -119,7 +146,7 @@ void QR_SVD(double A[][N]){
         QR_Decomposition(M, AAt, Q_AAt, R_AAt);
 
         // Step 2: New A = R @ Q
-        double Anew[M][M] = {0.0};
+        double **Anew = alloc_matrix(M, M);
 
         for (size_t i = 0; i < M; i++){
             for (size_t j = 0; j < M; j++){
@@ -152,6 +179,7 @@ void QR_SVD(double A[][N]){
                 U[i][j] = Utemp[i][j];
             }
         }
+        free_matrix(Anew, M);
     }
     for (size_t i = 0; i < M; i++)
         eigvals[i][i] = AAt[i][i];
@@ -163,7 +191,7 @@ void QR_SVD(double A[][N]){
         QR_Decomposition(N, AtA, Q_AtA, R_AtA);
 
         // Step 2: New A = R @ Q
-        double Anew[N][N] = {0.0};
+        double **Anew = alloc_matrix(N, N);
                 
         for (size_t i = 0; i < N; i++){
             for (size_t j = 0; j < N; j++){
@@ -196,12 +224,13 @@ void QR_SVD(double A[][N]){
                 V[i][j] = Vtemp[i][j];
             }
         }
+        free_matrix(Anew, N);
     }
     int rank = min(N, M);
     printf("Eigenvalues:");
-    for (size_t i = 0; i < N; i++){
+    for (size_t i = 0; i < M; i++){
         printf("\n");
-        for (size_t j = 0; j < N; j++){
+        for (size_t j = 0; j < M; j++){
             if(i == j) printf("%f   ", sqrt(eigvals[i][j]));
         }
     }
@@ -221,29 +250,58 @@ void QR_SVD(double A[][N]){
             printf("%f  ", V[i][j]);
         }
     }
-
-    
+    free_matrix(AT, N);
+    free_matrix(AAt, M);
+    free_matrix(AtA, N);
+    free_matrix(U, M);
+    free_matrix(Utemp, M);
+    free_matrix(V, N);
+    free_matrix(Vtemp, N);
+    free_matrix(Q_AAt, M);
+    free_matrix(R_AAt, M);
+    free_matrix(Q_AtA, N);
+    free_matrix(R_AtA, N);
+    free_matrix(eigvals, M);  
 }
 
 int main()
 {
-    double A[M][N] = {
-        {  1.2,  -3.4,   5.6,   0.8,  -2.1,   4.3 },
-        { -0.7,   2.9,  -4.5,   3.1,   1.0,  -5.2 },
-        {  6.4,   0.3,  -1.8,  -2.6,   4.9,   0.7 },
-        { -3.0,   5.5,   2.2,  -0.9,  -4.1,   1.6 },
-        {  0.4,  -1.7,   3.8,   4.2,  -0.5,  -2.9 }
-    };
+    int R=0, C=0;
+    int num_matrices=0;
+    int elements=0;
 
-    clock_t start = clock();
+    FILE* results = NULL;
+    FILE* dataset = NULL;
 
-    QR_SVD(A); 
+    dataset = fopen("dataset.txt", "r");
+    results = fopen("results_serial.txt", "w");
 
-    clock_t end = clock();
+    fprintf(results, "elements time\n");
 
-    double elapsed = (double)(end - start) / CLOCKS_PER_SEC;
+    fscanf(dataset, "%d", &num_matrices);
 
-    printf("\nTotal elapsed time: %.6f seconds\n", elapsed);
+    for(int k=0; k<num_matrices; k++){
+        fscanf(dataset, "%d %d", &R, &C);
+        elements = R*C;
+        double** A = alloc_matrix(R, C);
+
+        read_matrix(dataset, R, C, A);
+
+        clock_t start = clock();
+
+        QR_SVD(A, R, C); 
+
+        clock_t end = clock();
+
+        double elapsed = (double)(end - start) / CLOCKS_PER_SEC;
+
+        fprintf(results, "%d %f\n", elements, elapsed);
+
+        free_matrix(A, R);
+    }
+
+    fclose(results);
+    fclose(dataset);
 
     return 0;
 }
