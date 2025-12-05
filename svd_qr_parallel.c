@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
-
 #include <mpi.h>
 
 #define min(a, b) ((a) < (b) ? (a) : (b))
@@ -35,8 +34,6 @@ void free_matrix(double** matrix, int R) {
 void matrix_multiplication(size_t m, size_t n, double** A, double** B, double** C){ // m rows of A, n column of A
 
     int i, j, k; 
-    // int threads = omp_get_max_threads();
-
     for (i = 0; i < m; ++i) {
         for (j = 0; j < m; ++j) {
             for (k = 0; k < n; ++k) {
@@ -349,8 +346,6 @@ int main(int argc, char* argv[]){
     MPI_Comm_size(MPI_COMM_WORLD, &comm_sz);
     MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
 
-    printf("my rank is %d out of %d\n", my_rank, size);
-
     if(my_rank == 0){
         dataset = fopen("./svd-parallel/dataset.txt", "r");
         results = fopen("./svd-parallel/results_parallel.txt", "w");
@@ -367,14 +362,10 @@ int main(int argc, char* argv[]){
             fscanf(dataset, "%d %d", &R, &C); // read number of rows and columns
         }
 
-        MPI_Barrier(MPI_COMM_WORLD);
-
         MPI_Bcast(&R, 1, MPI_INT, 0, MPI_COMM_WORLD);
         MPI_Bcast(&C, 1, MPI_INT, 0, MPI_COMM_WORLD);
         
         elements = R*C;
-
-
 
         double** current_matrix = alloc_matrix(R, C);
 
