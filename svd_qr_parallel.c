@@ -60,7 +60,7 @@ void parallel_matrix_multiplication(int m, int n, double** A, double** B, double
         }
     }
 
-    MPI_Bcast(flat_B, n * p, MPI_DOUBLE, 0, comm);
+    MPI_Bcast(flat_B, n * m, MPI_DOUBLE, 0, comm);
 
     int* sendcounts = malloc(size * sizeof(int));
     int* displs = malloc(size * sizeof(int));
@@ -95,13 +95,13 @@ void parallel_matrix_multiplication(int m, int n, double** A, double** B, double
                  local_A, my_rows * n, MPI_DOUBLE, 
                  0, comm);
 
-    double* local_C = (double*)calloc(my_rows * p, sizeof(double));
+    double* local_C = (double*)calloc(my_rows * m, sizeof(double));
 
     for (int i = 0; i < my_rows; i++) {
         for (int k = 0; k < n; k++) {
             double a_val = local_A[i * n + k];
-            for (int j = 0; j < p; j++) {
-                local_C[i * p + j] += a_val * flat_B[k * p + j];
+            for (int j = 0; j < m; j++) {
+                local_C[i * m + j] += a_val * flat_B[k * m + j];
             }
         }
     }
@@ -282,7 +282,7 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
             AT[j][i] = A[i][j];
         }
     }
-    
+
         // Compute A @ A.T
     parallel_matrix_multiplication(M, N, A, AT, AAt, comm);
 
