@@ -273,22 +273,23 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
 
     int iterations = 10; 
 
-    if(rank == 0){
-        // Compute A transposed 
-        for (size_t i = 0; i < M; i++)
+  
+    // Compute A transposed 
+    for (size_t i = 0; i < M; i++)
+    {
+        for (size_t j = 0; j < N; j++)
         {
-            for (size_t j = 0; j < N; j++)
-            {
-                AT[j][i] = A[i][j];
-            }
+            AT[j][i] = A[i][j];
         }
-
+    }
+    
         // Compute A @ A.T
-        parallel_matrix_multiplication(M, N, A, AT, AAt, comm);
+    parallel_matrix_multiplication(M, N, A, AT, AAt, comm);
 
         // Compute A.T @ A
-        parallel_matrix_multiplication(N, M, AT, A, AtA, comm);
+    parallel_matrix_multiplication(N, M, AT, A, AtA, comm);
 
+    if(rank == 0){
         // Initialize U, V as identity matrices NxN
         for (size_t i = 0; i < M; i++) {
             for (size_t j = 0; j < M; j++) {
