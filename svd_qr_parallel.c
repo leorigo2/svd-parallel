@@ -109,9 +109,9 @@ void parallel_matrix_multiplication(int m, int n, double** A, double** B, double
     for (int ii = 0; ii < size; ii++) {
         int start_ii = ii * base_rows;
         int end_ii = (ii == size - 1) ? n : start_ii + base_rows;
-        int rows_ii = end - start; 
-        sendcounts[i] = rows_ii * m;
-        displs[i] = (i == 0) ? 0 : displs[i-1] + sendcounts[i-1];
+        int rows_ii = end_ii - start_ii; 
+        sendcounts[ii] = rows_ii * m;
+        displs[ii] = (ii == 0) ? 0 : displs[ii-1] + sendcounts[ii-1];
     }
 
     double* flat_C = NULL;
