@@ -285,24 +285,22 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
         }
     }
 
-        // Compute A @ A.T
+    // Compute A @ A.T
     parallel_matrix_multiplication(M, N, A, AT, AAt, comm);
 
-        // Compute A.T @ A
+    // Compute A.T @ A
     parallel_matrix_multiplication(N, M, AT, A, AtA, comm);
 
-    if(rank == 0){
-        // Initialize U, V as identity matrices NxN
-        for (size_t i = 0; i < M; i++) {
-            for (size_t j = 0; j < M; j++) {
-                U[i][j] = (i == j) ? 1.0 : 0.0;
-            }
+    // Initialize U, V as identity matrices NxN
+    for (size_t i = 0; i < M; i++) {
+        for (size_t j = 0; j < M; j++) {
+            U[i][j] = (i == j) ? 1.0 : 0.0;
         }
+    }
 
-        for (size_t i = 0; i < N; i++) {
-            for (size_t j = 0; j < N; j++) {
-                V[i][j] = (i == j) ? 1.0 : 0.0;
-            }
+    for (size_t i = 0; i < N; i++) {
+        for (size_t j = 0; j < N; j++) {
+            V[i][j] = (i == j) ? 1.0 : 0.0;
         }
     }
 
@@ -314,27 +312,25 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
 
 	    double** Anew = alloc_matrix(M, M);
         // Step 2: New A = R @ Q
-        if(rank == 0){
-            matrix_multiplication(M, M, R_AAt, Q_AAt, Anew);
+        parallel_matrix_multiplication(M, M, R_AAt, Q_AAt, Anew);
 
-            for (size_t i = 0; i < M; i++){
-                for (size_t j = 0; j < M; j++){
-                    AAt[i][j] = Anew[i][j];
-                }
+        for (size_t i = 0; i < M; i++){
+            for (size_t j = 0; j < M; j++){
+                AAt[i][j] = Anew[i][j];
             }
+        }
 
-            // Step 3: accumulate eigenvectors: U = U * Q
-            for(size_t i=0;i<M;i++)
-                for(size_t j=0;j<M;j++)
-                    Utemp[i][j] = 0.0;
+        // Step 3: accumulate eigenvectors: U = U * Q
+        for(size_t i=0;i<M;i++)
+            for(size_t j=0;j<M;j++)
+                Utemp[i][j] = 0.0;
 
-            matrix_multiplication(M, M, U, Q_AAt, Utemp);
+        parallel_matrix_multiplication(M, M, U, Q_AAt, Utemp);
 
-            // Copy Utemp into U
-            for (size_t i = 0; i < M; i++){
-                for (size_t j = 0; j < M; j++){
-                    U[i][j] = Utemp[i][j];
-                }
+        // Copy Utemp into U
+        for (size_t i = 0; i < M; i++){
+            for (size_t j = 0; j < M; j++){
+                U[i][j] = Utemp[i][j];
             }
         }
         free_matrix(Anew, M);
@@ -353,33 +349,32 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
 
 	    double** Anew = alloc_matrix(N, N);
         // Step 2: New A = R @ Q
-        if(rank == 0){
-            matrix_multiplication(N, N, R_AtA, Q_AtA, Anew);
+        parallel_matrix_multiplication(N, N, R_AtA, Q_AtA, Anew);
 
-            for (size_t i = 0; i < N; i++){
-                for (size_t j = 0; j < N; j++){
-                    AtA[i][j] = Anew[i][j];
-                }
-            }
-
-            // Step 3: accumulate eigenvectors: V = V * Q
-            for(size_t i=0;i<N;i++)
-                for(size_t j=0;j<N;j++)
-                    Vtemp[i][j] = 0.0;
-
-           matrix_multiplication(N, N, V, Q_AtA, Vtemp);
-
-            // Copy Vtemp into V
-            for (size_t i = 0; i < N; i++){
-                for (size_t j = 0; j < N; j++){
-                    V[i][j] = Vtemp[i][j];
-                }
+        for (size_t i = 0; i < N; i++){
+            for (size_t j = 0; j < N; j++){
+                AtA[i][j] = Anew[i][j];
             }
         }
+
+        // Step 3: accumulate eigenvectors: V = V * Q
+        for(size_t i=0;i<N;i++)
+            for(size_t j=0;j<N;j++)
+                Vtemp[i][j] = 0.0;
+
+        parallel_matrix_multiplication(N, N, V, Q_AtA, Vtemp);
+
+        // Copy Vtemp into V
+        for (size_t i = 0; i < N; i++){
+            for (size_t j = 0; j < N; j++){
+                V[i][j] = Vtemp[i][j];
+            }
+        }
+
         free_matrix(Anew, N);
     }
 
-    if(rank == 10000){
+    if(rank == 0){
         int mat_rank = min(N, M);
         printf("Eigenvalues:\n");
         for (size_t i = 0; i < M; i++){
