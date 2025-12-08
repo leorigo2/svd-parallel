@@ -44,6 +44,99 @@ void matrix_multiplication(size_t m, size_t n, double** A, double** B, double** 
 
 }
 
+void parallel_matrix_multiplication(int m, int n, double** A, double** B, double** C, MPI_Comm comm) {
+    
+    int rank, size;
+    MPI_Comm_rank(comm, &rank);
+    MPI_Comm_size(comm, &size);
+
+    double* flat_B = (double*)malloc(n * m * sizeof(double));
+    
+    if (rank == 0) {
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                flat_B[i * m + j] = B[i][j];
+            }
+        }
+    }
+
+    MPI_Bcast(flat_B, n * p, MPI_DOUBLE, 0, comm);
+
+    int* sendcounts = malloc(size * sizeof(int));
+    int* displs = malloc(size * sizeof(int));
+
+    int base_rows = m / size;
+    int start = rank * base_rows;
+    int end = (rank == size - 1) ? n : start + base_rows;
+    int my_rows = end - start; 
+
+
+    for (int i = 0; i < size; i++) {
+        int start_i = i * base_rows;
+        int end_i = (i == size - 1) ? n : start_i + base_rows;
+        int rows_i = end_i - start_i; 
+        sendcounts[i] = rows_i * n; 
+        displs[i] = (i == 0) ? 0 : displs[i-1] + sendcounts[i-1];
+    }
+
+    double* local_A = (double*)malloc(my_rows * n * sizeof(double));
+    double* flat_A = NULL;
+
+    if (rank == 0) {
+        flat_A = (double*)malloc(m * n * sizeof(double));
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                flat_A[i * n + j] = A[i][j];
+            }
+        }
+    }
+
+    MPI_Scatterv(flat_A, sendcounts, displs, MPI_DOUBLE, 
+                 local_A, my_rows * n, MPI_DOUBLE, 
+                 0, comm);
+
+    double* local_C = (double*)calloc(my_rows * p, sizeof(double));
+
+    for (int i = 0; i < my_rows; i++) {
+        for (int k = 0; k < n; k++) {
+            double a_val = local_A[i * n + k];
+            for (int j = 0; j < p; j++) {
+                local_C[i * p + j] += a_val * flat_B[k * p + j];
+            }
+        }
+    }
+
+    for (int ii = 0; ii < size; ii++) {
+        int start_ii = ii * base_rows;
+        int end_ii = (ii == size - 1) ? n : start_ii + base_rows;
+        int rows_ii = end - start; 
+        sendcounts[i] = rows_ii * m;
+        displs[i] = (i == 0) ? 0 : displs[i-1] + sendcounts[i-1];
+    }
+
+    double* flat_C = NULL;
+    if (rank == 0) flat_C = (double*)malloc(m * m * sizeof(double));
+
+    MPI_Gatherv(local_C, my_rows * m, MPI_DOUBLE,
+                flat_C, sendcounts, displs, MPI_DOUBLE,
+                0, comm);
+
+    if (rank == 0) {
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < m; j++) {
+                C[i][j] = flat_C[i * m + j];
+            }
+        }
+        free(flat_A);
+        free(flat_C);
+    }
+    free(flat_B);
+    free(local_A);
+    free(local_C);
+    free(sendcounts);
+    free(displs);
+}
+
 void QR_Decomposition(size_t n, double **A, double **Q, double **R, MPI_Comm comm) {
 
     int rank, size;
@@ -191,10 +284,10 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
         }
 
         // Compute A @ A.T
-        matrix_multiplication(M, N, A, AT, AAt);
+        parallel_matrix_multiplication(M, N, A, AT, AAt, comm);
 
         // Compute A.T @ A
-        matrix_multiplication(N, M, AT, A, AtA);
+        parallel_matrix_multiplication(N, M, AT, A, AtA, comm);
 
         // Initialize U, V as identity matrices NxN
         for (size_t i = 0; i < M; i++) {
