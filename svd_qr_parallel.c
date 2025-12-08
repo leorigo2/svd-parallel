@@ -312,7 +312,7 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
 
 	    double** Anew = alloc_matrix(M, M);
         // Step 2: New A = R @ Q
-        parallel_matrix_multiplication(M, M, R_AAt, Q_AAt, Anew);
+        parallel_matrix_multiplication(M, M, R_AAt, Q_AAt, Anew, comm);
 
         for (size_t i = 0; i < M; i++){
             for (size_t j = 0; j < M; j++){
@@ -325,7 +325,7 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
             for(size_t j=0;j<M;j++)
                 Utemp[i][j] = 0.0;
 
-        parallel_matrix_multiplication(M, M, U, Q_AAt, Utemp);
+        parallel_matrix_multiplication(M, M, U, Q_AAt, Utemp, comm);
 
         // Copy Utemp into U
         for (size_t i = 0; i < M; i++){
@@ -349,7 +349,7 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
 
 	    double** Anew = alloc_matrix(N, N);
         // Step 2: New A = R @ Q
-        parallel_matrix_multiplication(N, N, R_AtA, Q_AtA, Anew);
+        parallel_matrix_multiplication(N, N, R_AtA, Q_AtA, Anew, comm);
 
         for (size_t i = 0; i < N; i++){
             for (size_t j = 0; j < N; j++){
@@ -362,7 +362,7 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
             for(size_t j=0;j<N;j++)
                 Vtemp[i][j] = 0.0;
 
-        parallel_matrix_multiplication(N, N, V, Q_AtA, Vtemp);
+        parallel_matrix_multiplication(N, N, V, Q_AtA, Vtemp, comm);
 
         // Copy Vtemp into V
         for (size_t i = 0; i < N; i++){
