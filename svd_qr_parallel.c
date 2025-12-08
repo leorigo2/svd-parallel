@@ -67,13 +67,12 @@ void parallel_matrix_multiplication(int m, int n, double** A, double** B, double
 
     int base_rows = m / size;
     int start = rank * base_rows;
-    int end = (rank == size - 1) ? n : start + base_rows;
+    int end = (rank == size - 1) ? m : start + base_rows; 
     int my_rows = end - start; 
-
 
     for (int i = 0; i < size; i++) {
         int start_i = i * base_rows;
-        int end_i = (i == size - 1) ? n : start_i + base_rows;
+        int end_i = (i == size - 1) ? m : start_i + base_rows;
         int rows_i = end_i - start_i; 
         sendcounts[i] = rows_i * n; 
         displs[i] = (i == 0) ? 0 : displs[i-1] + sendcounts[i-1];
@@ -106,11 +105,13 @@ void parallel_matrix_multiplication(int m, int n, double** A, double** B, double
         }
     }
 
+ 
     for (int ii = 0; ii < size; ii++) {
         int start_ii = ii * base_rows;
-        int end_ii = (ii == size - 1) ? n : start_ii + base_rows;
+        int end_ii = (ii == size - 1) ? m : start_ii + base_rows;
         int rows_ii = end_ii - start_ii; 
-        sendcounts[ii] = rows_ii * m;
+        
+        sendcounts[ii] = rows_ii * m; 
         displs[ii] = (ii == 0) ? 0 : displs[ii-1] + sendcounts[ii-1];
     }
 
@@ -130,6 +131,7 @@ void parallel_matrix_multiplication(int m, int n, double** A, double** B, double
         free(flat_A);
         free(flat_C);
     }
+    
     free(flat_B);
     free(local_A);
     free(local_C);
