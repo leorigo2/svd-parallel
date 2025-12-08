@@ -275,14 +275,29 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
 
     int iterations = 10; 
 
-  
-    // Compute A transposed 
-    for (size_t i = 0; i < M; i++)
-    {
-        for (size_t j = 0; j < N; j++)
+    if(rank == 0){
+        // Compute A transposed 
+        for (size_t i = 0; i < M; i++)
         {
-            AT[j][i] = A[i][j];
+            for (size_t j = 0; j < N; j++)
+            {
+                AT[j][i] = A[i][j];
+            }
         }
+
+        // Initialize U, V as identity matrices NxN
+        for (size_t i = 0; i < M; i++) {
+            for (size_t j = 0; j < M; j++) {
+                U[i][j] = (i == j) ? 1.0 : 0.0;
+            }
+        }
+
+        for (size_t i = 0; i < N; i++) {
+            for (size_t j = 0; j < N; j++) {
+                V[i][j] = (i == j) ? 1.0 : 0.0;
+            }
+        }
+
     }
 
     // Compute A @ A.T
@@ -290,21 +305,7 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
 
     // Compute A.T @ A
     parallel_matrix_multiplication(N, M, AT, A, AtA, comm);
-
-    // Initialize U, V as identity matrices NxN
-    for (size_t i = 0; i < M; i++) {
-        for (size_t j = 0; j < M; j++) {
-            U[i][j] = (i == j) ? 1.0 : 0.0;
-        }
-    }
-
-    for (size_t i = 0; i < N; i++) {
-        for (size_t j = 0; j < N; j++) {
-            V[i][j] = (i == j) ? 1.0 : 0.0;
-        }
-    }
-
-
+   
     // Compute AAt eigenvector and eigenvalues via QR Decomposition
     for(int iter = 0; iter < iterations; iter++){
         // Step 1: QR decomposition
@@ -314,25 +315,30 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
         // Step 2: New A = R @ Q
         parallel_matrix_multiplication(M, M, R_AAt, Q_AAt, Anew, comm);
 
-        for (size_t i = 0; i < M; i++){
-            for (size_t j = 0; j < M; j++){
-                AAt[i][j] = Anew[i][j];
+        if(rank == 0){
+            for (size_t i = 0; i < M; i++){
+                for (size_t j = 0; j < M; j++){
+                    AAt[i][j] = Anew[i][j];
+                }
             }
-        }
 
-        // Step 3: accumulate eigenvectors: U = U * Q
-        for(size_t i=0;i<M;i++)
-            for(size_t j=0;j<M;j++)
-                Utemp[i][j] = 0.0;
+            // Step 3: accumulate eigenvectors: U = U * Q
+            for(size_t i=0;i<M;i++)
+                for(size_t j=0;j<M;j++)
+                    Utemp[i][j] = 0.0;
+        }
 
         parallel_matrix_multiplication(M, M, U, Q_AAt, Utemp, comm);
 
-        // Copy Utemp into U
-        for (size_t i = 0; i < M; i++){
-            for (size_t j = 0; j < M; j++){
-                U[i][j] = Utemp[i][j];
+        if(rank == 0){
+            // Copy Utemp into U
+            for (size_t i = 0; i < M; i++){
+                for (size_t j = 0; j < M; j++){
+                    U[i][j] = Utemp[i][j];
+                }
             }
         }
+
         free_matrix(Anew, M);
     }
 
@@ -351,23 +357,28 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
         // Step 2: New A = R @ Q
         parallel_matrix_multiplication(N, N, R_AtA, Q_AtA, Anew, comm);
 
-        for (size_t i = 0; i < N; i++){
-            for (size_t j = 0; j < N; j++){
-                AtA[i][j] = Anew[i][j];
+        if(rank == 0){
+            for (size_t i = 0; i < N; i++){
+                for (size_t j = 0; j < N; j++){
+                    AtA[i][j] = Anew[i][j];
+                }
             }
-        }
 
-        // Step 3: accumulate eigenvectors: V = V * Q
-        for(size_t i=0;i<N;i++)
-            for(size_t j=0;j<N;j++)
-                Vtemp[i][j] = 0.0;
+            // Step 3: accumulate eigenvectors: V = V * Q
+            for(size_t i=0;i<N;i++)
+                for(size_t j=0;j<N;j++)
+                    Vtemp[i][j] = 0.0;
+        
+        }
 
         parallel_matrix_multiplication(N, N, V, Q_AtA, Vtemp, comm);
 
-        // Copy Vtemp into V
-        for (size_t i = 0; i < N; i++){
-            for (size_t j = 0; j < N; j++){
-                V[i][j] = Vtemp[i][j];
+        if(rank == 0){
+            // Copy Vtemp into V
+            for (size_t i = 0; i < N; i++){
+                for (size_t j = 0; j < N; j++){
+                    V[i][j] = Vtemp[i][j];
+                }
             }
         }
 
