@@ -184,7 +184,7 @@ void QR_Decomposition(size_t n, double **A, double **Q, double **R, MPI_Comm com
             double global_dot = 0.0;
             MPI_Allreduce(&local_dot, &global_dot, 1, MPI_DOUBLE, MPI_SUM, comm);
             
-            if(rank==0) R[j][i] = global_dot;
+            R[j][i] = global_dot;
 
             for (size_t k = start; k < end; k++)
                 u_local[k - start] -= global_dot * Q[k][j];
@@ -200,30 +200,33 @@ void QR_Decomposition(size_t n, double **A, double **Q, double **R, MPI_Comm com
 
         double norm = sqrt(global_norm);
 
-        if (rank == 0) R[i][i] = norm;
+        R[i][i] = norm;
 
         for (size_t k = 0; k < rows_per_proc; k++){
             Q_i_col[k] = (norm == 0) ? 0.0 : u_local[k] / norm;
         }
 
-        MPI_Gatherv(Q_i_col, rows_per_proc, MPI_DOUBLE, recv_col_buffer, recvcounts, displs, MPI_DOUBLE, 0, comm);
+        for (size_t k = 0; k < rows_per_proc; k++) {
+            size_t global_row = start + k;
+            Q[global_row][i] = Q_i_col[k]; 
+        }
 
-        if (rank == 0) {
-            for (int r = 0; r < size; r++) {
-                int displacement = displs[r]; // displacement of Rth node
-                int elements_count = recvcounts[r]; // number of elements of Rth node
+        MPI_AllGatherv(Q_i_col, rows_per_proc, MPI_DOUBLE, recv_col_buffer, recvcounts, displs, MPI_DOUBLE, comm);
 
-                size_t global_start = (size_t)r * offset; // starting point of Rth node
-                if (r == size - 1)
-                    global_start = n - elements_count; // if it's the last node, subtract the remaining elements (it could be not a multiplo)
 
-                for (int rr = 0; rr < elements_count; rr++) {
-                    size_t global_row = global_start + rr; // compute the row for each element
-                    Q[global_row][i] = recv_col_buffer[displacement + rr]; // put each element in Q[row][i] so i-th column of Q
-                }
+        for (int r = 0; r < size; r++) {
+            int displacement = displs[r]; // displacement of Rth node
+            int elements_count = recvcounts[r]; // number of elements of Rth node
+
+            size_t global_start = (size_t)r * offset; // starting point of Rth node
+            if (r == size - 1)
+                global_start = n - elements_count; // if it's the last node, subtract the remaining elements (it could be not a multiplo)
+
+            for (int rr = 0; rr < elements_count; rr++) {
+                size_t global_row = global_start + rr; // compute the row for each element
+                Q[global_row][i] = recv_col_buffer[displacement + rr]; // put each element in Q[row][i] so i-th column of Q
             }
-        }   
-
+        }
     }
 
     free(Q_i_col);
