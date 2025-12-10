@@ -502,10 +502,10 @@ int main(int argc, char* argv[]){
 
         double* flat_matrix = (double*)malloc(R * C * sizeof(double));
 
-        if (rank == 0) {
+        if (my_rank == 0) {
             for (int i = 0; i < C; i++) {
                 for (int j = 0; j < R; j++) {
-                    flat_matrix[i * m + j] = current_matrix[i][j];
+                    flat_matrix[i * C + j] = current_matrix[i][j];
                 }
             }
         }
@@ -514,7 +514,7 @@ int main(int argc, char* argv[]){
 
         for (int i = 0; i < C; i++) {
             for (int j = 0; j < R; j++) {
-                current_matrix[i][j] = flat_matrix[i * m + j];
+                current_matrix[i][j] = flat_matrix[i * C + j];
             }
         }
 
