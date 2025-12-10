@@ -256,6 +256,7 @@ void QR_Decomposition(size_t n, double **A, double **Q, double **R, MPI_Comm com
 void QR_SVD(double** A, int M, int N, MPI_Comm comm){
 
     int rank, size;
+    double start_time, end_time; // Variables for timing
 
     MPI_Comm_rank(comm, &rank);
     MPI_Comm_size(comm, &size);
@@ -297,23 +298,44 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
                 V[i][j] = (i == j) ? 1.0 : 0.0;
             }
         }
-
     }
 
-    // Compute A @ A.T
+    // --- Compute A @ A.T ---
+    if (rank == 0) start_time = MPI_Wtime();
     parallel_matrix_multiplication(M, N, A, AT, AAt, comm);
+    if (rank == 0) {
+        end_time = MPI_Wtime();
+        printf("[Time] A @ A.T multiplication: %f seconds\n", end_time - start_time);
+    }
 
-    // Compute A.T @ A
+    // --- Compute A.T @ A ---
+    if (rank == 0) start_time = MPI_Wtime();
     parallel_matrix_multiplication(N, M, AT, A, AtA, comm);
+    if (rank == 0) {
+        end_time = MPI_Wtime();
+        printf("[Time] A.T @ A multiplication: %f seconds\n", end_time - start_time);
+    }
    
     // Compute AAt eigenvector and eigenvalues via QR Decomposition
     for(int iter = 0; iter < iterations; iter++){
+        
         // Step 1: QR decomposition
+        if (rank == 0) start_time = MPI_Wtime();
         QR_Decomposition(M, AAt, Q_AAt, R_AAt, comm);
+        if (rank == 0) {
+            end_time = MPI_Wtime();
+            printf("[Time] Iter %d (AAt): QR_Decomposition: %f seconds\n", iter, end_time - start_time);
+        }
 
-	    double** Anew = alloc_matrix(M, M);
+        double** Anew = alloc_matrix(M, M);
+        
         // Step 2: New A = R @ Q
+        if (rank == 0) start_time = MPI_Wtime();
         parallel_matrix_multiplication(M, M, R_AAt, Q_AAt, Anew, comm);
+        if (rank == 0) {
+            end_time = MPI_Wtime();
+            printf("[Time] Iter %d (AAt): MatMul (R @ Q): %f seconds\n", iter, end_time - start_time);
+        }
 
         if(rank == 0){
             for (size_t i = 0; i < M; i++){
@@ -328,7 +350,12 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
                     Utemp[i][j] = 0.0;
         }
 
+        if (rank == 0) start_time = MPI_Wtime();
         parallel_matrix_multiplication(M, M, U, Q_AAt, Utemp, comm);
+        if (rank == 0) {
+            end_time = MPI_Wtime();
+            printf("[Time] Iter %d (AAt): MatMul (Accumulate U): %f seconds\n", iter, end_time - start_time);
+        }
 
         if(rank == 0){
             // Copy Utemp into U
@@ -350,12 +377,24 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
 
     // Compute AtA eigenvector
     for(int iter = 0; iter < iterations; iter++){
+        
         // Step 1: QR decomposition
+        if (rank == 0) start_time = MPI_Wtime();
         QR_Decomposition(N, AtA, Q_AtA, R_AtA, comm);
+        if (rank == 0) {
+            end_time = MPI_Wtime();
+            printf("[Time] Iter %d (AtA): QR_Decomposition: %f seconds\n", iter, end_time - start_time);
+        }
 
-	    double** Anew = alloc_matrix(N, N);
+        double** Anew = alloc_matrix(N, N);
+        
         // Step 2: New A = R @ Q
+        if (rank == 0) start_time = MPI_Wtime();
         parallel_matrix_multiplication(N, N, R_AtA, Q_AtA, Anew, comm);
+        if (rank == 0) {
+            end_time = MPI_Wtime();
+            printf("[Time] Iter %d (AtA): MatMul (R @ Q): %f seconds\n", iter, end_time - start_time);
+        }
 
         if(rank == 0){
             for (size_t i = 0; i < N; i++){
@@ -371,7 +410,12 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
         
         }
 
+        if (rank == 0) start_time = MPI_Wtime();
         parallel_matrix_multiplication(N, N, V, Q_AtA, Vtemp, comm);
+        if (rank == 0) {
+            end_time = MPI_Wtime();
+            printf("[Time] Iter %d (AtA): MatMul (Accumulate V): %f seconds\n", iter, end_time - start_time);
+        }
 
         if(rank == 0){
             // Copy Vtemp into V
@@ -385,7 +429,7 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
         free_matrix(Anew, N);
     }
 
-    if(rank == 0){
+    if(rank == 1000){
         int mat_rank = min(N, M);
         printf("Eigenvalues:\n");
         for (size_t i = 0; i < M; i++){

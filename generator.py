@@ -29,8 +29,8 @@ def generate_and_save_dataset():
             
             for i in range(NUM_MATRICES):
                 # Randomly determine dimensions (e.g., between 2x2 and 10x10)
-                R = random.randint(1000, 2000)
-                C = random.randint(1000, 2000)
+                R = random.randint(100, 200)
+                C = random.randint(100, 200)
                 
                 # Generate a random matrix with real (float) values
                 # Values will be between -10.0 and 10.0 for variety
