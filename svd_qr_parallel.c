@@ -233,8 +233,6 @@ void QR_Decomposition(size_t n, double **A, double **Q, double **R, MPI_Comm com
     }
 
     free(Q_i_col);
-    free(A_col);
-    free(Q_col);
     free(u_local);
     free(recvcounts);
     free(displs);
