@@ -161,32 +161,35 @@ void QR_Decomposition(size_t n, double **A, double **Q, double **R, MPI_Comm com
         displs[i] = displs[i-1] + recvcounts[i-1]; // compute displacements for GatherV (where to start saving elements)
     
     double *u_local = malloc(rows_per_proc * sizeof(double)); 
-    double *A_col = malloc(n * sizeof(double)); 
-    double *Q_col = malloc(n * sizeof(double));
-
     double *Q_i_col = malloc(rows_per_proc * sizeof(double));
     double *recv_col_buffer = malloc(n * sizeof(double));
+
+    double *local_dots = malloc(n * sizeof(double));
+    double *global_dots = malloc(n * sizeof(double));
 
     for(size_t i = 0; i < n; i++){ 
 
         for (size_t k = start; k < end; k++)
             u_local[k - start] = A[k][i];
 
-        for(size_t j=0; j<i; j++){
 
-            double local_dot = 0.0;
-            for(size_t i_dot=start; i_dot<end; i_dot++){
-                local_dot += Q[i_dot][j]*A[i_dot][i];
+        for(size_t j = 0; j < i; j++){
+            double dot = 0.0;
+            for(size_t k = start; k < end; k++){
+                dot += Q[k][j] * A[k][i];
             }
+            local_dots[j] = dot;
+        }
 
-            double global_dot = 0.0;
-            MPI_Allreduce(&local_dot, &global_dot, 1, MPI_DOUBLE, MPI_SUM, comm);
-            
-            R[j][i] = global_dot;
+        if (i > 0) {
+            MPI_Allreduce(local_dots, global_dots, i, MPI_DOUBLE, MPI_SUM, comm);
+        }
 
+        for(size_t j = 0; j < i; j++){
+            double alpha = global_dots[j];
+            R[j][i] = alpha; 
             for (size_t k = start; k < end; k++)
-                u_local[k - start] -= global_dot * Q[k][j];
-
+                u_local[k - start] -= alpha * Q[k][j];
         }
 
         double local_norm = 0.0;
