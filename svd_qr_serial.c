@@ -234,7 +234,7 @@ void QR_SVD(double** A, int M, int N){
             if(i == j) printf("%f   ", sqrt(eigvals[i][j]));
         }
     }
-
+    /*
     printf("\n\nLeft singular values:");
     for (size_t i = 0; i < M; i++){
         printf("\n");
@@ -250,6 +250,7 @@ void QR_SVD(double** A, int M, int N){
             printf("%f  ", V[i][j]);
         }
     }
+    */
     free_matrix(AT, N);
     free_matrix(AAt, M);
     free_matrix(AtA, N);
