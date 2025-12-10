@@ -418,7 +418,6 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
                 if(i==j) printf("%f   ", sqrt(eigvals[i][j]));
             }
         }
-        /*
         printf("\n\nLeft singular values:");
         for (size_t i = 0; i < M; i++){
             printf("\n");
@@ -436,7 +435,7 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
             }
         }
         printf("\n");
-        */
+    
 
         fflush(stdout);
     }
