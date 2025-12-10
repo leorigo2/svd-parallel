@@ -209,7 +209,9 @@ void QR_Decomposition(size_t n, double **A, double **Q, double **R, MPI_Comm com
             Q[global_row][i] = Q_i_col[k]; 
         }
 
-        MPI_Allgatherv(Q_i_col, rows_per_proc, MPI_DOUBLE, recv_col_buffer, recvcounts, displs, MPI_DOUBLE, comm);
+        MPI_Allgatherv(Q_i_col, rows_per_proc, MPI_DOUBLE, 
+            recv_col_buffer, recvcounts, displs, 
+            MPI_DOUBLE, comm);
 
 
         for (int r = 0; r < size; r++) {
