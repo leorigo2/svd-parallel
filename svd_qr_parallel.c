@@ -115,23 +115,21 @@ void parallel_matrix_multiplication(int m, int n, double** A, double** B, double
         displs[ii] = (ii == 0) ? 0 : displs[ii-1] + sendcounts[ii-1];
     }
 
-    double* flat_C = NULL;
-    if (rank == 0) flat_C = (double*)malloc(m * m * sizeof(double));
+    double* flat_C = (double*)malloc(m * m * sizeof(double));
 
-    MPI_Gatherv(local_C, my_rows * m, MPI_DOUBLE,
+    MPI_Allgatherv(local_C, my_rows * m, MPI_DOUBLE,
                 flat_C, sendcounts, displs, MPI_DOUBLE,
-                0, comm);
+                comm);
 
-    if (rank == 0) {
-        for (int i = 0; i < m; i++) {
-            for (int j = 0; j < m; j++) {
-                C[i][j] = flat_C[i * m + j];
-            }
+
+    for (int i = 0; i < m; i++) {
+        for (int j = 0; j < m; j++) {
+            C[i][j] = flat_C[i * m + j];
         }
-        free(flat_A);
-        free(flat_C);
     }
-    
+    if(rank==0) free(flat_A);
+
+    free(flat_C);
     free(flat_B);
     free(local_A);
     free(local_C);
