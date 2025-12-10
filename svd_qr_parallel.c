@@ -503,8 +503,8 @@ int main(int argc, char* argv[]){
         double* flat_matrix = (double*)malloc(R * C * sizeof(double));
 
         if (my_rank == 0) {
-            for (int i = 0; i < C; i++) {
-                for (int j = 0; j < R; j++) {
+            for (int i = 0; i < R; i++) {
+                for (int j = 0; j < C; j++) {
                     flat_matrix[i * C + j] = current_matrix[i][j];
                 }
             }
@@ -512,8 +512,8 @@ int main(int argc, char* argv[]){
 
         MPI_Bcast(flat_matrix, R * C, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
-        for (int i = 0; i < C; i++) {
-            for (int j = 0; j < R; j++) {
+        for (int i = 0; i < R; i++) {
+            for (int j = 0; j < C; j++) {
                 current_matrix[i][j] = flat_matrix[i * C + j];
             }
         }
