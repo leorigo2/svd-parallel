@@ -1,9 +1,9 @@
 #!/bin/bash
 
-#PBS -l select=1:ncpus=1:mem=2gb
+#PBS -l select=4:ncpus=24:mem=2gb 
 # set max execution time
-#PBS -l walltime=0:05:00
+#PBS -l walltime=5:00:00
 # set the queue
-#PBS -q short_cpuQ
+#PBS -q short_HPC4DS
 module load mpich-3.2
-mpiexec -n 1 ./svd-parallel/svd_qr_parallel 
+mpiexec -n 96 ./svd-parallel/svd_qr_parallel 
