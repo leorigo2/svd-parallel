@@ -6,4 +6,4 @@
 # set the queue
 #PBS -q short_HPC4DS
 module load mpich-3.2
-mpiexec -n 96 ./svd-parallel/svd_qr_parallel 
+mpiexec -n 96 ./svd-parallel/QR_dec/svd_qr_parallel 
