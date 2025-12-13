@@ -262,7 +262,7 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
     double** R_AtA = alloc_matrix(N, N);
     double** eigvals = alloc_matrix(M, M); 
 
-    int iterations = 10; 
+    int iterations = 5; 
 
 
     // Compute A transposed 
