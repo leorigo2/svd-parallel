@@ -13,6 +13,7 @@ files = {
     '2x4': 'results_parallel_2x4.txt',
     '2x8':  'results_parallel_2x8.txt',
     '8x2':   'results_parallel_8x2.txt',
+    '5x5': 'results_parallel_5x5.txt',
     '2x16':  'results_parallel_2x16.txt',
     '16x2':   'results_parallel_16x2.txt',
 }
