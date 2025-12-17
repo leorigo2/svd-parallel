@@ -8,17 +8,13 @@ dict_serial = df_serial.to_dict(orient='list')
 serial_times = dict_serial['time'] 
 
 files = {
-    '2x5':   'results_parallel_2x5.txt',
-    '2x25':  'results_parallel_2x25.txt',
-    '3x25':  'results_parallel_3x25.txt',
-    '4x5':   'results_parallel_4x5.txt',
-    '4x24':  'results_parallel_4x24.txt',
-    '5x2':   'results_parallel_5x2.txt',
-    '5x30':  'results_parallel_5x30.txt',
-    '24x4':  'results_parallel_24x4.txt',
-    '25x2':  'results_parallel_25x2.txt',
-    '25x3':  'results_parallel_25x3.txt',
-    '30x5':  'results_parallel_30x5.txt'
+    '2x2':   'results_parallel_2x2.txt',
+    '4x2':  'results_parallel_4x2.txt',
+    '2x4': 'results_parallel_2x4.txt',
+    '2x8':  'results_parallel_2x8.txt',
+    '8x2':   'results_parallel_8x2.txt',
+    '2x16':  'results_parallel_2x16.txt',
+    '16x2':   'results_parallel_16x2.txt',
 }
 
 results = {}
