@@ -432,8 +432,8 @@ int main(int argc, char* argv[]){
     MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
 
     if(my_rank == 0){
-        dataset = fopen("./svd-parallel/dataset.txt", "r");
-        results = fopen("./svd-parallel/QR_results/r_greater_c/results_parallel_5x5.txt", "w");
+        dataset = fopen("./svd-parallel/dataset_same_r_c.txt", "r");
+        results = fopen("./svd-parallel/QR_results/same_r_c/results_parallel_8x2.txt", "w");
 
         fprintf(results, "elements time\n");
 
