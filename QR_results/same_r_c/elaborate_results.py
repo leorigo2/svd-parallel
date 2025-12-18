@@ -2,23 +2,23 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-# 1. Load Serial Data
 df_serial = pd.read_csv('results_serial.txt', sep=r'\s+')
 dict_serial = df_serial.to_dict(orient='list')
 serial_times = dict_serial['time'] 
 
 files = {
-    '2x5':   'results_parallel_2x5.txt',
-    '2x25':  'results_parallel_2x25.txt',
-    '3x25':  'results_parallel_3x25.txt',
+    'serial': 'results_serial.txt',
+    '1x2': 'results_parallel_1x2.txt',
+    '2x2': 'results_parallel_2x2.txt',
+    '2x4': 'results_parallel_2x4.txt',
+    '4x2': 'results_parallel_4x2.txt',
+    '2x8': 'results_parallel_2x8.txt',
+    '8x2': 'results_parallel_8x2.txt',
     '4x5':   'results_parallel_4x5.txt',
-    '4x24':  'results_parallel_4x24.txt',
-    '5x2':   'results_parallel_5x2.txt',
-    '5x30':  'results_parallel_5x30.txt',
-    '24x4':  'results_parallel_24x4.txt',
-    '25x2':  'results_parallel_25x2.txt',
-    '25x3':  'results_parallel_25x3.txt',
-    '30x5':  'results_parallel_30x5.txt'
+    '2x8_pack_excl': "nodes_placing/results_parallel_2x8_pack_excl.txt",
+    '2x8_pack': "nodes_placing/results_parallel_2x8_pack.txt",
+    '2x8_scatter': "nodes_placing/results_parallel_2x8_scatter.txt",
+    '2x8_scatter_excl': "nodes_placing/results_parallel_2x8_scatter_excl.txt"
 }
 
 results = {}
@@ -26,8 +26,11 @@ results = {}
 for name, filename in files.items():
     df = pd.read_csv(filename, sep=r'\s+')
     data = df.to_dict(orient='list')
-    rows, cols = map(int, name.split('x'))
-    num_p = rows * cols
+    if name == 'serial': 
+        num_p = 1
+    else: 
+        cores, cpus = map(int, name.split('_')[0].split('x'))
+        num_p = cores * cpus
     data['num_p'] = num_p
     data['speedup'] = [t_s / t_p for t_s, t_p in zip(serial_times, data['time'])]
     data['efficiency'] = [s / num_p for s in data['speedup']]
@@ -37,7 +40,7 @@ for name, filename in files.items():
 
 mean_times = {name: np.mean(data['time']) for name, data in results.items()}
 best_config = min(mean_times, key=mean_times.get)
-print(f"Best Configuration: {best_config}")
+print(f"Best configuration is: {best_config}")
 
 for name, data in results.items():
     sort_indices = np.argsort(data['elements'])
@@ -48,18 +51,30 @@ for name, data in results.items():
     results[name]['speedup'] = np.array(data['speedup'])[sort_indices].tolist()
 
 
-data = results[best_config]
+data_1 = results['2x8']
+data_2 = results['2x8_pack_excl']
+data_3 = results['2x8_pack']
+data_4 = results['2x8_scatter_excl']
+
 num_p = data['num_p']
 
 plt.figure(figsize=(10, 6))
-plt.plot(data['elements'], data['efficiency'], marker='o', linestyle='-', color='blue')
 
-plt.title(f'Efficiency vs Number of Elements ({best_config})')
+plt.plot(data_1['elements'], data_1['efficiency'], 
+         marker='o', linestyle='-', color='blue', label='2x8 Default')
+plt.plot(data_2['elements'], data_2['efficiency'], 
+         marker='s', linestyle='-', color='red', label='2x8 Pack Excl')
+plt.plot(data_3['elements'], data_3['efficiency'], 
+         marker='^', linestyle='-', color='green', label='2x8 Pack')
+plt.plot(data_4['elements'], data_4['efficiency'], 
+         marker='d', linestyle='-', color='purple', label='2x8 Scatter Excl')
+
+plt.title(f'Efficiency vs Number of Elements (2x8)')
 plt.xlabel('Number of Elements')
 plt.ylabel(f'Efficiency (Speedup / {num_p})')
 plt.grid(True)
-
-plt.savefig(f'efficiency_{best_config}.png')
+plt.legend()
+plt.savefig(f'efficiency_2x8.png')
 plt.show()
 
 p_groups = {}
