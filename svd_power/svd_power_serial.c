@@ -2,248 +2,170 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
+#include <string.h>
 
-#define ROWS 4
-#define COLS 3
-#define METHOD COLS>=ROWS
-#define MAX_DIM (COLS>ROWS) ? COLS : ROWS
-#define DIM_X ((COLS>ROWS) ? ROWS: COLS)
-#define MAX_ITER 200
+#define MAX_ITER 10
+#define EPS 1e-10
 
-double singolar_value(double lambda);
-void transpose(double matrix[ROWS][COLS], double transposed[COLS][ROWS]);
-void computeB(double matrix[ROWS][COLS], double B[DIM_X][DIM_X]);
-void printMatrix(double matrix[MAX_DIM][MAX_DIM], int rows, int cols);
-void init_x(double * x);
-void matrix_array_prod(double B[DIM_X][DIM_X], double * random_vector, double * result);
-double vector_norm(double * result);
-void normalize_vector(double * result);
-double power_iteration(double B[DIM_X][DIM_X], double * random_vector);
-void copy_array(double * src, double * dst);
-void mult_A_vector(double A[ROWS][COLS], double *vec, double *result);
-void mult_At_vector(double At[COLS][ROWS], double *vec, double *result);
-void compute_singular_vectors(double A[ROWS][COLS], double * eigen_vector, double sigma, double *u, double *v);
-void deflate_matrix(double B[DIM_X][DIM_X], double lambda, double *u);
+double norm2(double *x, int n);
+void normalize(double *x, int n);
+void compute_B(double *A, double *B, int rows, int cols, int method);
+double power_iteration(double *B, double *v, int n);
+void deflate(double *B, double *v, double lambda, int n);
 
-int main (int argc, char ** argv){
-    srand(time(NULL));
+int main(int argc, char **argv) {
+    srand(1234);
 
-    double matrix[ROWS][COLS] = {
-            1,  2,  3,
-            4,  5,  6,
-            7,  8,  9,
-            10, 11, 12
-        };
+    FILE *file = fopen("/datasets/dataset_same_r_c.txt", "r");
+    if (!file) {
+        printf("Error opening file 'dataset_same_r_c.txt'.\n");
+        return 1;
+    }
 
-    printf("matrix:\n");
-    for (int i = 0; i < ROWS; i++) {
-        for (int j = 0; j < COLS; j++) {
-            printf("%f ", matrix[i][j]);
+    int matrix_count;
+    if (fscanf(file, "%d", &matrix_count) != 1) {
+        printf("Error reading matrix count.\n");
+        return 1;
+    }
+    
+    printf("Processing %d matrices (Serial Version)...\n", matrix_count);
+
+    double total_time = 0.0;
+
+    for (int m_idx = 0; m_idx < matrix_count; m_idx++) {
+        int M, N;
+        if (fscanf(file, "%d %d", &M, &N) != 2) break;
+
+        double *A = (double*)malloc(M * N * sizeof(double));
+        for (int i = 0; i < M * N; i++) {
+            fscanf(file, "%lf", &A[i]);
         }
-        printf("\n");
+
+        printf("\n=== Matrix %d/%d (%dx%d) ===\n", m_idx + 1, matrix_count, M, N);
+
+        clock_t start = clock();
+
+        int method = (N >= M) ? 1 : 0; 
+        int dim = (method == 1) ? M : N; // min(M, N)
+
+        double *B = (double*)malloc(dim * dim * sizeof(double));
+        
+        // Compute B = A*A^T or A^T*A
+        compute_B(A, B, M, N, method);
+
+        int K = dim;
+        
+        for (int k = 0; k < K; k++) {
+            double *v = (double*)malloc(dim * sizeof(double));
+            // Initialize random vector
+            for(int i=0; i<dim; i++) v[i] = (double)rand() / RAND_MAX;
+
+            double lambda = power_iteration(B, v, dim);
+            double sigma = sqrt(fabs(lambda)); // lambda is eigenvalue of B (sigma^2)
+
+            if (sigma < EPS) {
+                free(v);
+                break;
+            }
+
+            // printf("sigma_%d = %f\n", k+1, sigma);
+
+            deflate(B, v, lambda, dim);
+            free(v);
+        }
+
+        free(B);
+        free(A);
+
+        clock_t end = clock();
+        double time_taken = ((double)(end - start)) / CLOCKS_PER_SEC;
+        printf("Execution time: %f s\n", time_taken);
+        total_time += time_taken;
     }
 
-    double B[DIM_X][DIM_X];
-    computeB(matrix, B);
-    
-    double sigmas[DIM_X];
-    double U[DIM_X][ROWS];
-    double V[DIM_X][COLS];
-    
-    for (int k = 0; k < DIM_X; k++) {
-        double random_vector[DIM_X];
-        init_x(random_vector);
-        
-        // Power iteration
-        double lambda = power_iteration(B, random_vector);
-        double sigma = singolar_value(lambda);
-        sigmas[k] = sigma;
-        
-        double u[MAX_DIM];
-        double v[MAX_DIM];
-        compute_singular_vectors(matrix, random_vector, sigma, u, v);
-        
-        for (int i = 0; i < ROWS; i++) U[k][i] = u[i];
-        for (int i = 0; i < COLS; i++) V[k][i] = v[i];
-        
-        printf("\nSingular value %d = %f\n", k+1, sigma);
-        printf("Left singular vector u%d = ", k+1);
-        for (int i = 0; i < ROWS; i++) printf("%f ", u[i]);
-        printf("\nRight singular vector v%d = ", k+1);
-        for (int i = 0; i < COLS; i++) printf("%f ", v[i]);
-        printf("\n");
-        
-        deflate_matrix(B, lambda, random_vector);
-    }
-    
-    printf("\n=== SVD Summary ===\n");
-    printf("Singular values: ");
-    for (int i = 0; i < DIM_X; i++) printf("%f ", sigmas[i]);
-    printf("\n");
-    
+    printf("Total execution time: %f s\n", total_time);
+    fclose(file);
     return 0;
 }
 
-// Function to transpose a matrix
-void transpose(double src[ROWS][COLS], double dest[COLS][ROWS]) {
-    for (int i = 0; i < COLS; i++) {
-        for (int j = 0; j < ROWS; j++) {
-            dest[i][j] = src[j][i];
-        }
-    }
-}
-
-// Function to compute B
-void computeB(double A[ROWS][COLS], double B[DIM_X][DIM_X]) {
-    double At[COLS][ROWS];
-    transpose(A, At);
-
-    if (METHOD == 0) {  // Caso: ROWS > COLS → B = A^T * A
-        for (int i = 0; i < DIM_X; i++) {
-            for (int j = 0; j < DIM_X; j++) {
-                B[i][j] = 0.0;
-                for (int k = 0; k < ROWS; k++) {
-                    B[i][j] += At[i][k] * A[k][j];
-                }
-            }
-        }
-        printf("B = A^T * A (COLS x COLS)\n");
-        for (int i = 0; i < DIM_X; i++) {
-            for (int j = 0; j < DIM_X; j++) {
-                printf("%f ", B[i][j]);
-            }
-            printf("\n");
-        }
-    } 
-    else {  // Caso: ROWS <= COLS → B = A * A^T
-        for (int i = 0; i < DIM_X; i++) {
-            for (int j = 0; j < DIM_X; j++) {
-                B[i][j] = 0.0;
-                for (int k = 0; k < COLS; k++) {
-                    B[i][j] += A[i][k] * At[k][j];
-                }
-            }
-        }
-        printf("B = A * A^T (ROWS x ROWS)\n");
-        for (int i = 0; i < DIM_X; i++) {
-            for (int j = 0; j < DIM_X; j++) {
-                printf("%f ", B[i][j]);
-            }
-            printf("\n");
-        }
-    }
-}
-
-// Function to compute matrix * array
-void matrix_array_prod(double B[DIM_X][DIM_X], double * random_vector, double * result){
-    for(int i=0; i<DIM_X; i++){
-        result[i] = 0.0;
-        for(int j=0; j<DIM_X; j++){
-            result[i]+= random_vector[j]*B[i][j];
-        }
-    }
-
-}
-
-// Norm L2
-double vector_norm(double * result){
-    double sum=0.0;
-    for(int i=0; i<DIM_X; i++)sum+=result[i]*result[i];
+double norm2(double *x, int n) {
+    double sum = 0.0;
+    for (int i = 0; i < n; i++) sum += x[i] * x[i];
     return sqrt(sum);
 }
 
-// Normalization with L2
-void normalize_vector(double * result){
-    double norm = vector_norm(result);
-    if(norm==0){
-        printf("Erorre! Norm=0");
-        return;
-    }
-    for(int i=0; i<DIM_X; i++){
-        result[i] /= norm;
+void normalize(double *x, int n) {
+    double norm = norm2(x, n);
+    if (norm > 1e-15) {
+        for (int i = 0; i < n; i++) x[i] /= norm;
     }
 }
 
-// Iterations to find eigen value
-double power_iteration(double B[DIM_X][DIM_X], double * random_vector){
-    double result[DIM_X];
+void compute_B(double *A, double *B, int rows, int cols, int method) {
+    // method 0: B = A^T * A (size cols x cols)
+    // method 1: B = A * A^T (size rows x rows)
+    
+    int dim = (method == 1) ? rows : cols;
+
+    for (int i = 0; i < dim; i++) {
+        for (int j = 0; j < dim; j++) {
+            double sum = 0.0;
+            if (method == 0) {
+                // B[i][j] = dot(Col i of A, Col j of A)
+                // Col i elements are A[k*cols + i]
+                for (int k = 0; k < rows; k++) {
+                    sum += A[k * cols + i] * A[k * cols + j];
+                }
+            } else {
+                // B[i][j] = dot(Row i of A, Row j of A)
+                // Row i elements are A[i*cols + k]
+                for (int k = 0; k < cols; k++) {
+                    sum += A[i * cols + k] * A[j * cols + k];
+                }
+            }
+            B[i * dim + j] = sum;
+        }
+    }
+}
+
+double power_iteration(double *B, double *v, int n) {
+    double *y = (double*)malloc(n * sizeof(double));
     double lambda = 0.0;
-    for(int i=0; i<MAX_ITER; i++){
-        matrix_array_prod(B, random_vector, result);
-        lambda = vector_norm(result);
-        normalize_vector(result);
-        copy_array(result, random_vector);
+    double lambda_old = 0.0;
+
+    normalize(v, n);
+
+    for (int iter = 0; iter < MAX_ITER; iter++) {
+        // y = B * v
+        for (int i = 0; i < n; i++) {
+            y[i] = 0.0;
+            for (int j = 0; j < n; j++) {
+                y[i] += B[i * n + j] * v[j];
+            }
+        }
+
+        lambda = norm2(y, n);
+        
+        if (lambda < 1e-15) break;
+
+        // v = y / lambda
+        for (int i = 0; i < n; i++) {
+            v[i] = y[i] / lambda;
+        }
+
+        if (fabs(lambda - lambda_old) < 1e-8) break;
+        lambda_old = lambda;
     }
 
+    free(y);
     return lambda;
 }
 
-// function to compute the other eigen vector
-void compute_singular_vectors(double A[ROWS][COLS], double * eigen_vector, double sigma, double *u, double *v){
-     if (METHOD == 0) {  // B = A^T·A → eigen_vector è v
-        for (int i = 0; i < COLS; i++) {
-            v[i] = eigen_vector[i];
-        }
-        
-        // Calcola u = (A · v) / σ
-        mult_A_vector(A, v, u);
-        for (int i = 0; i < ROWS; i++) {
-            u[i] = u[i] / sigma;
-        }
-    }
-    else {  // B = A·A^T → eigen_vector è u
-        for (int i = 0; i < ROWS; i++) {
-            u[i] = eigen_vector[i];
-        }
-        
-        // Calcola v = (A^T · u) / σ
-        double At[COLS][ROWS];
-        transpose(A, At);
-        mult_At_vector(At, u, v);
-        for (int i = 0; i < COLS; i++) {
-            v[i] = v[i] / sigma;
-        }
-    }
-}
-
-void mult_At_vector(double At[COLS][ROWS], double *vec, double *result) {
-    for (int i = 0; i < COLS; i++) {
-        result[i] = 0.0;
-        for (int j = 0; j < ROWS; j++) {
-            result[i] += At[i][j] * vec[j];
-        }
-    }
-}
-
-void mult_A_vector(double A[ROWS][COLS], double *vec, double *result) {
-    for (int i = 0; i < ROWS; i++) {
-        result[i] = 0.0;
-        for (int j = 0; j < COLS; j++) {
-            result[i] += A[i][j] * vec[j];
-        }
-    }
-}
-
-void copy_array(double * src, double * dst){
-    for(int i=0; i<DIM_X; i++){
-        dst[i] = src[i];
-    }
-}
-
-double singolar_value(double lambda){
-    return sqrt(lambda);
-}
-
-void init_x(double * x){
-    for(int i=0; i<DIM_X; i++) x[i] = 2.0* rand()/ RAND_MAX -1.0;
-}
-
-// Function to remove the last value found
-void deflate_matrix(double B[DIM_X][DIM_X], double lambda, double *u) {
-    // B = B - λ · (u·u^T)
-    for (int i = 0; i < DIM_X; i++) {
-        for (int j = 0; j < DIM_X; j++) {
-            B[i][j] = B[i][j] - lambda * u[i] * u[j];
+void deflate(double *B, double *v, double lambda, int n) {
+    // B = B - lambda * v * v^T
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            B[i * n + j] -= lambda * v[i] * v[j];
         }
     }
 }

@@ -1,0 +1,364 @@
+Processing 30 matrices with 3 MPI processes
+
+=== Matrix 1/30 ===
+Matrix size: M=965, N=5
+Computing 5 singular values
+sigma_1 = 1.89287880e+02
+sigma_2 = 1.84913581e+02
+sigma_3 = 1.81383071e+02
+sigma_4 = 1.75832937e+02
+sigma_5 = 1.70656402e+02
+Execution time for matrix 1: 0.010025 s
+
+=== Matrix 2/30 ===
+Matrix size: M=591, N=7
+Computing 7 singular values
+sigma_1 = 1.54297136e+02
+sigma_2 = 1.47969899e+02
+sigma_3 = 1.39596579e+02
+sigma_4 = 1.38791723e+02
+sigma_5 = 1.35970249e+02
+sigma_6 = 1.35134010e+02
+sigma_7 = 1.27153947e+02
+Execution time for matrix 2: 0.010834 s
+
+=== Matrix 3/30 ===
+Matrix size: M=993, N=10
+Computing 10 singular values
+sigma_1 = 1.96390813e+02
+sigma_2 = 1.91286220e+02
+sigma_3 = 1.90408069e+02
+sigma_4 = 1.88225274e+02
+sigma_5 = 1.81849273e+02
+sigma_6 = 1.79824060e+02
+sigma_7 = 1.78668086e+02
+sigma_8 = 1.75173142e+02
+sigma_9 = 1.71027894e+02
+sigma_10 = 1.68193987e+02
+Execution time for matrix 3: 0.040775 s
+
+=== Matrix 4/30 ===
+Matrix size: M=941, N=5
+Computing 5 singular values
+sigma_1 = 1.85119257e+02
+sigma_2 = 1.79441256e+02
+sigma_3 = 1.78629222e+02
+sigma_4 = 1.70211022e+02
+sigma_5 = 1.64343266e+02
+Execution time for matrix 4: 0.008890 s
+
+=== Matrix 5/30 ===
+Matrix size: M=599, N=9
+Computing 9 singular values
+sigma_1 = 1.51978599e+02
+sigma_2 = 1.50426661e+02
+sigma_3 = 1.45545041e+02
+sigma_4 = 1.42898225e+02
+sigma_5 = 1.41511030e+02
+sigma_6 = 1.39680676e+02
+sigma_7 = 1.37428681e+02
+sigma_8 = 1.34840223e+02
+sigma_9 = 1.26825577e+02
+Execution time for matrix 5: 0.020630 s
+
+=== Matrix 6/30 ===
+Matrix size: M=845, N=9
+Computing 9 singular values
+sigma_1 = 1.82305004e+02
+sigma_2 = 1.77659001e+02
+sigma_3 = 1.73815974e+02
+sigma_4 = 1.71456656e+02
+sigma_5 = 1.66370210e+02
+sigma_6 = 1.65092190e+02
+sigma_7 = 1.59794993e+02
+sigma_8 = 1.59055146e+02
+sigma_9 = 1.55924423e+02
+Execution time for matrix 6: 0.028202 s
+
+=== Matrix 7/30 ===
+Matrix size: M=982, N=5
+Computing 5 singular values
+sigma_1 = 1.85316568e+02
+sigma_2 = 1.83656717e+02
+sigma_3 = 1.82173301e+02
+sigma_4 = 1.78699847e+02
+sigma_5 = 1.73265105e+02
+Execution time for matrix 7: 0.009768 s
+
+=== Matrix 8/30 ===
+Matrix size: M=863, N=5
+Computing 5 singular values
+sigma_1 = 1.82320960e+02
+sigma_2 = 1.77800636e+02
+sigma_3 = 1.66742274e+02
+sigma_4 = 1.64033082e+02
+sigma_5 = 1.59579277e+02
+Execution time for matrix 8: 0.007823 s
+
+=== Matrix 9/30 ===
+Matrix size: M=651, N=6
+Computing 6 singular values
+sigma_1 = 1.55847302e+02
+sigma_2 = 1.53112806e+02
+sigma_3 = 1.47944420e+02
+sigma_4 = 1.44347283e+02
+sigma_5 = 1.41655447e+02
+sigma_6 = 1.35865272e+02
+Execution time for matrix 9: 0.009274 s
+
+=== Matrix 10/30 ===
+Matrix size: M=626, N=5
+Computing 5 singular values
+sigma_1 = 1.52670784e+02
+sigma_2 = 1.45583238e+02
+sigma_3 = 1.42084166e+02
+sigma_4 = 1.41279202e+02
+sigma_5 = 1.34092779e+02
+Execution time for matrix 10: 0.005679 s
+
+=== Matrix 11/30 ===
+Matrix size: M=675, N=7
+Computing 7 singular values
+sigma_1 = 1.61453472e+02
+sigma_2 = 1.57337644e+02
+sigma_3 = 1.54586699e+02
+sigma_4 = 1.49463090e+02
+sigma_5 = 1.45410846e+02
+sigma_6 = 1.42378727e+02
+sigma_7 = 1.42189857e+02
+Execution time for matrix 11: 0.014628 s
+
+=== Matrix 12/30 ===
+Matrix size: M=776, N=8
+Computing 8 singular values
+sigma_1 = 1.69379396e+02
+sigma_2 = 1.68689321e+02
+sigma_3 = 1.67606439e+02
+sigma_4 = 1.62965047e+02
+sigma_5 = 1.56883009e+02
+sigma_6 = 1.55844850e+02
+sigma_7 = 1.53536478e+02
+sigma_8 = 1.50893978e+02
+Execution time for matrix 12: 0.021288 s
+
+=== Matrix 13/30 ===
+Matrix size: M=560, N=7
+Computing 7 singular values
+sigma_1 = 1.46583847e+02
+sigma_2 = 1.42978920e+02
+sigma_3 = 1.39236143e+02
+sigma_4 = 1.37005209e+02
+sigma_5 = 1.35051476e+02
+sigma_6 = 1.31897441e+02
+sigma_7 = 1.27771276e+02
+Execution time for matrix 13: 0.012982 s
+
+=== Matrix 14/30 ===
+Matrix size: M=973, N=10
+Computing 10 singular values
+sigma_1 = 1.94753634e+02
+sigma_2 = 1.88874406e+02
+sigma_3 = 1.85879431e+02
+sigma_4 = 1.83246380e+02
+sigma_5 = 1.80816664e+02
+sigma_6 = 1.76751173e+02
+sigma_7 = 1.75686625e+02
+sigma_8 = 1.71935858e+02
+sigma_9 = 1.69942064e+02
+sigma_10 = 1.66689691e+02
+Execution time for matrix 14: 0.040785 s
+
+=== Matrix 15/30 ===
+Matrix size: M=581, N=6
+Computing 6 singular values
+sigma_1 = 1.50742045e+02
+sigma_2 = 1.41969818e+02
+sigma_3 = 1.39552405e+02
+sigma_4 = 1.35485814e+02
+sigma_5 = 1.34295184e+02
+sigma_6 = 1.30016988e+02
+Execution time for matrix 15: 0.008482 s
+
+=== Matrix 16/30 ===
+Matrix size: M=890, N=5
+Computing 5 singular values
+sigma_1 = 1.82314777e+02
+sigma_2 = 1.75061116e+02
+sigma_3 = 1.69145703e+02
+sigma_4 = 1.68152991e+02
+sigma_5 = 1.66507984e+02
+Execution time for matrix 16: 0.007799 s
+
+=== Matrix 17/30 ===
+Matrix size: M=665, N=10
+Computing 10 singular values
+sigma_1 = 1.61691063e+02
+sigma_2 = 1.59538273e+02
+sigma_3 = 1.54116541e+02
+sigma_4 = 1.49872386e+02
+sigma_5 = 1.48522082e+02
+sigma_6 = 1.47165008e+02
+sigma_7 = 1.42882934e+02
+sigma_8 = 1.37972236e+02
+sigma_9 = 1.35348866e+02
+sigma_10 = 1.31736857e+02
+Execution time for matrix 17: 0.028460 s
+
+=== Matrix 18/30 ===
+Matrix size: M=771, N=6
+Computing 6 singular values
+sigma_1 = 1.68291233e+02
+sigma_2 = 1.65362140e+02
+sigma_3 = 1.61241199e+02
+sigma_4 = 1.57220853e+02
+sigma_5 = 1.54518450e+02
+sigma_6 = 1.51685458e+02
+Execution time for matrix 18: 0.011872 s
+
+=== Matrix 19/30 ===
+Matrix size: M=817, N=9
+Computing 9 singular values
+sigma_1 = 1.78781800e+02
+sigma_2 = 1.75115089e+02
+sigma_3 = 1.68069600e+02
+sigma_4 = 1.67485195e+02
+sigma_5 = 1.63744664e+02
+sigma_6 = 1.61274596e+02
+sigma_7 = 1.57156171e+02
+sigma_8 = 1.55207197e+02
+sigma_9 = 1.53036414e+02
+Execution time for matrix 19: 0.027539 s
+
+=== Matrix 20/30 ===
+Matrix size: M=504, N=6
+Computing 6 singular values
+sigma_1 = 1.41420970e+02
+sigma_2 = 1.39222928e+02
+sigma_3 = 1.33916238e+02
+sigma_4 = 1.28869605e+02
+sigma_5 = 1.25437108e+02
+sigma_6 = 1.20104048e+02
+Execution time for matrix 20: 0.007445 s
+
+=== Matrix 21/30 ===
+Matrix size: M=618, N=5
+Computing 5 singular values
+sigma_1 = 1.53389942e+02
+sigma_2 = 1.48043688e+02
+sigma_3 = 1.41082741e+02
+sigma_4 = 1.38348021e+02
+sigma_5 = 1.33625968e+02
+Execution time for matrix 21: 0.005676 s
+
+=== Matrix 22/30 ===
+Matrix size: M=729, N=9
+Computing 9 singular values
+sigma_1 = 1.73883625e+02
+sigma_2 = 1.68696819e+02
+sigma_3 = 1.66085713e+02
+sigma_4 = 1.57977912e+02
+sigma_5 = 1.55401405e+02
+sigma_6 = 1.50492849e+02
+sigma_7 = 1.47746056e+02
+sigma_8 = 1.44617003e+02
+sigma_9 = 1.40729546e+02
+Execution time for matrix 22: 0.023585 s
+
+=== Matrix 23/30 ===
+Matrix size: M=905, N=8
+Computing 8 singular values
+sigma_1 = 1.86454845e+02
+sigma_2 = 1.81160150e+02
+sigma_3 = 1.77908257e+02
+sigma_4 = 1.76005340e+02
+sigma_5 = 1.73390739e+02
+sigma_6 = 1.67206249e+02
+sigma_7 = 1.65664806e+02
+sigma_8 = 1.62060867e+02
+Execution time for matrix 23: 0.023324 s
+
+=== Matrix 24/30 ===
+Matrix size: M=866, N=10
+Computing 10 singular values
+sigma_1 = 1.88425757e+02
+sigma_2 = 1.77885079e+02
+sigma_3 = 1.76367134e+02
+sigma_4 = 1.71997467e+02
+sigma_5 = 1.71186512e+02
+sigma_6 = 1.67635481e+02
+sigma_7 = 1.64438000e+02
+sigma_8 = 1.59849261e+02
+sigma_9 = 1.61162573e+02
+sigma_10 = 1.55595133e+02
+Execution time for matrix 24: 0.034833 s
+
+=== Matrix 25/30 ===
+Matrix size: M=592, N=5
+Computing 5 singular values
+sigma_1 = 1.48575530e+02
+sigma_2 = 1.46215670e+02
+sigma_3 = 1.44050964e+02
+sigma_4 = 1.36953667e+02
+sigma_5 = 1.29804716e+02
+Execution time for matrix 25: 0.005722 s
+
+=== Matrix 26/30 ===
+Matrix size: M=546, N=9
+Computing 9 singular values
+sigma_1 = 1.49336552e+02
+sigma_2 = 1.43835600e+02
+sigma_3 = 1.43837793e+02
+sigma_4 = 1.35741691e+02
+sigma_5 = 1.33802532e+02
+sigma_6 = 1.30527504e+02
+sigma_7 = 1.27479604e+02
+sigma_8 = 1.24331593e+02
+sigma_9 = 1.20612983e+02
+Execution time for matrix 26: 0.018410 s
+
+=== Matrix 27/30 ===
+Matrix size: M=661, N=5
+Computing 5 singular values
+sigma_1 = 1.57148105e+02
+sigma_2 = 1.53301557e+02
+sigma_3 = 1.49963343e+02
+sigma_4 = 1.43286828e+02
+sigma_5 = 1.40251271e+02
+Execution time for matrix 27: 0.006958 s
+
+=== Matrix 28/30 ===
+Matrix size: M=532, N=10
+Computing 10 singular values
+sigma_1 = 1.47119210e+02
+sigma_2 = 1.46297791e+02
+sigma_3 = 1.38689122e+02
+sigma_4 = 1.36600863e+02
+sigma_5 = 1.35486567e+02
+sigma_6 = 1.33860334e+02
+sigma_7 = 1.28686046e+02
+sigma_8 = 1.26247735e+02
+sigma_9 = 1.20951402e+02
+sigma_10 = 1.16298399e+02
+Execution time for matrix 28: 0.021279 s
+
+=== Matrix 29/30 ===
+Matrix size: M=716, N=5
+Computing 5 singular values
+sigma_1 = 1.64201752e+02
+sigma_2 = 1.57741462e+02
+sigma_3 = 1.51135085e+02
+sigma_4 = 1.48059051e+02
+sigma_5 = 1.43971526e+02
+Execution time for matrix 29: 0.006694 s
+
+=== Matrix 30/30 ===
+Matrix size: M=731, N=7
+Computing 7 singular values
+sigma_1 = 1.64707821e+02
+sigma_2 = 1.62095174e+02
+sigma_3 = 1.59329317e+02
+sigma_4 = 1.57057973e+02
+sigma_5 = 1.54873787e+02
+sigma_6 = 1.51163907e+02
+sigma_7 = 1.47834258e+02
+Execution time for matrix 30: 0.016149 s
