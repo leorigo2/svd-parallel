@@ -26,13 +26,16 @@ We used the serial algorithm in C as a baseline to develop the parallel version.
 
 ## Instructions
 
-To run a test on the UniTN cluster
+To run a test on the UniTN cluster with either method
 
-1. Move to the desired folder
+1. Move to the desired folder (svd_power or svd_qr)
 2. Compile the source code with 
     ```bash
     mpicc -g -Wall -std=c99 -o svd_qr_parallel svd_qr_parallel.c -lm
+    or
+    mpicc -g -Wall -std=c99 -o svd_power_parallel svd_power_parallel.c -lm
 3. Customize the PBS parameters in run.sh based on your test requirements
 4. Submit the work by running
     ```bash
     qsub run.sh
+
