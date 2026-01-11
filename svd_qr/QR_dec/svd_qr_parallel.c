@@ -431,7 +431,7 @@ int main(int argc, char* argv[]){
 
     if(my_rank == 0){
         dataset = fopen("./svd-parallel/dataset.txt", "r");
-        results = fopen("./svd-parallel/QR_results/same_r_c/results_parallel_2x8_scatter_excl.txt", "w");
+        results = fopen("./svd-parallel/results_parallel_2x8_scatter_excl_ttess.txt", "w");
 
         fprintf(results, "elements time\n");
 
