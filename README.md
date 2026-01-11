@@ -26,12 +26,13 @@ We used the serial algorithm in C as a baseline to develop the parallel version.
 
 ## Instructions
 
-To run the QR method on the UniTN cluster
+To run a test on the UniTN cluster
 
-1. Compile the source code with 
+1. Move to the desired folder
+2. Compile the source code with 
     ```bash
     mpicc -g -Wall -std=c99 -o svd_qr_parallel svd_qr_parallel.c -lm
-2. Customize the PBS parameters in run.sh based on your test requirements
-3. Submit the work by running
+3. Customize the PBS parameters in run.sh based on your test requirements
+4. Submit the work by running
     ```bash
     qsub run.sh
