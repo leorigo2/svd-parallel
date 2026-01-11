@@ -1,0 +1,52 @@
+
+4896959 serial 5791.64s
+4897107 (2*2) 4 cpus 
+45 (2*4) 8 cpus 714.721234s
+46 (4*4) 16 cpus 528.412966s
+58 (4*8) 32 cpus 381.810743s
+70 (8x8) 64 cpus 443.339154s
+95 (8*16) 128 cpus 503.547650s
+
+154 (4*8) pack 221.031453s
+156 (4*8) scatter 342.158200s
+158 (4*8) pack:excl 175.153432s
+160 (4*8) scatter:excl 338.834243s
+
+165 (8*8) pack 123.078355s
+175 (8*8) scatter 369.460985s
+170 (8*8) pack:excl 105.927934s
+176 (8*8) scatter:excl 326.831780s
+
+179 (8*16) pack NOT WORKING
+181 (8*16) scatter 339.784113s
+182 (8*16) pack:excl NOT WORKING
+185 (8*16) scatter:excl 348.733203s
+
+4896887 (16*8) pack NOT WORKING
+4896888 (16*8) pack:excl NOT WORKING
+
+
+Only with 10 iterations
+4983997 serial 368.12s
+4983979 (2*2) 4 cpus 261.91s
+4983982 (2*4) 8 cpus 144.18s
+4983983 (4*4) 16 cpus 75.4271s
+4983984 (4*8) 32 cpus 55.64s
+4983986 (8*8) 64 cpus 73.07s
+4984030 (8*16) 128 cpus 71.8s
+4984009 (16*16) 256 cpus 94.78s 
+
+4984085 (4*4) pack 62.58s
+4984090 (4*4) scatter 111.4s
+4984091 (4*4) pack:excl 73.03s
+4984092 (4*4) scatter:excl 92.716s
+
+4984013 (4*8) pack 39.458s
+4984017 (4*8) scatter 70.25s 
+4984023 (4*8) pack:excl 38.15s
+4984024 (4*8) scatter:excl 69.17s
+
+4984082 (8*8) pack 21.626s
+4984044 (8*8) scatter 64.57s
+4984070 (8*8) pack:excl 21.99s
+4984046 (8*8) scatter:excl 65.97s
