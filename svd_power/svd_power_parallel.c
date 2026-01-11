@@ -226,7 +226,7 @@ void power_svd(double *A_local, int M, int N, int local_rows, MPI_Comm comm) {
         compute_u(A_local, v, u_local, local_rows, N, sigma);
 
         if (rank == 0)
-            printf("sigma_%d = %.8e\n", k+1, sigma);ù
+            printf("sigma_%d = %.8e\n", k+1, sigma);
         
         // A_local = A_local-sigma*u_local*v^T, deflation step to compute next Singular Values
         deflate(A_local, u_local, v, sigma, local_rows, N);
