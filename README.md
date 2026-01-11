@@ -13,7 +13,7 @@ Each algorithm has its own dedicated folder containing:
 
 ### Results
 The results subfolders contain:
-* Execution times for each matrix.
+* Execution times for each matrix and number of processes.
 * Graphs comparing performance.
 
 ### Key Files
