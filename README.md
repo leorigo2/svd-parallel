@@ -32,7 +32,7 @@ To run a test on the UniTN cluster with either method
 2. Compile the source code with 
     ```bash
     mpicc -g -Wall -std=c99 -o svd_qr_parallel svd_qr_parallel.c -lm
-or
+    or
     ```bash
     mpicc -g -Wall -std=c99 -o svd_power_parallel svd_power_parallel.c -lm
 3. Customize the PBS parameters in run.sh based on your test requirements
