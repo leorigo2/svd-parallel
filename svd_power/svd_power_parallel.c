@@ -3,7 +3,7 @@
 #include <mpi.h>
 #include <math.h>
 
-#define MAX_IT 10
+#define MAX_IT 50
 #define EPS 1e-10
 #define TOLERANCE 1e-8
 
