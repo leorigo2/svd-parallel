@@ -5,7 +5,10 @@
 
 #define min(a, b) ((a) < (b) ? (a) : (b))
 
-void read_matrix(FILE* file, int R, int C, double** matrix){ // R rows of matrix, C columns of matrix
+void read_matrix(FILE* file, int R, int C, double** matrix){ 
+    """
+    Read all elements of a matrix from our dataset file
+    """
     for (int i = 0; i < R; i++) {
         for (int j = 0; j < C; j++) {
             fscanf(file, "%lf", &matrix[i][j]);
@@ -14,6 +17,9 @@ void read_matrix(FILE* file, int R, int C, double** matrix){ // R rows of matrix
 }
 
 double** alloc_matrix(int rows, int cols) {
+    """
+    Dinamically allocate a matrix R*C
+    """
     double **matrix = (double **)malloc(rows * sizeof(double*));
 
     for (int i = 0; i < rows; i++) {
@@ -23,6 +29,9 @@ double** alloc_matrix(int rows, int cols) {
 }
 
 void free_matrix(double** matrix, int R) {
+    """
+    Free the memory allocated for a matrix
+    """
     if (matrix != NULL) {
         for (int i = 0; i < R; i++) {
             free(matrix[i]);
@@ -31,21 +40,10 @@ void free_matrix(double** matrix, int R) {
     }
 }
 
-void matrix_multiplication(size_t m, size_t n, double** A, double** B, double** C){ // m rows of A, n column of A
-
-    int i, j, k; 
-    for (i = 0; i < m; ++i) {
-        for (j = 0; j < m; ++j) {
-            for (k = 0; k < n; ++k) {
-                C[i][j] += A[i][k] * B[k][j];
-            }
-        }
-    }
-
-}
-
 void parallel_matrix_multiplication(int m, int n, double** A, double** B, double** C, MPI_Comm comm) {
-    
+    """
+    Parallelize matrix-matrix multiplication using MPI
+    """
     int rank, size;
     MPI_Comm_rank(comm, &rank);
     MPI_Comm_size(comm, &size);
@@ -55,12 +53,12 @@ void parallel_matrix_multiplication(int m, int n, double** A, double** B, double
     if (rank == 0) {
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < m; j++) {
-                flat_B[i * m + j] = B[i][j];
+                flat_B[i * m + j] = B[i][j]; // flatten B to have contiguos memory
             }
         }
     }
 
-    MPI_Bcast(flat_B, n * m, MPI_DOUBLE, 0, comm);
+    MPI_Bcast(flat_B, n * m, MPI_DOUBLE, 0, comm); // Broadcast B to all processes
 
     int* sendcounts = malloc(size * sizeof(int));
     int* displs = malloc(size * sizeof(int));
@@ -68,7 +66,7 @@ void parallel_matrix_multiplication(int m, int n, double** A, double** B, double
     int base_rows = m / size;
     int start = rank * base_rows;
     int end = (rank == size - 1) ? m : start + base_rows; 
-    int my_rows = end - start; 
+    int my_rows = end - start; // standard hyperparameters for parallel operations and matrix reconstruction
 
     for (int i = 0; i < size; i++) {
         int start_i = i * base_rows;
@@ -85,22 +83,22 @@ void parallel_matrix_multiplication(int m, int n, double** A, double** B, double
         flat_A = (double*)malloc(m * n * sizeof(double));
         for (int i = 0; i < m; i++) {
             for (int j = 0; j < n; j++) {
-                flat_A[i * n + j] = A[i][j];
+                flat_A[i * n + j] = A[i][j]; // flatten A
             }
         }
     }
 
     MPI_Scatterv(flat_A, sendcounts, displs, MPI_DOUBLE, 
                  local_A, my_rows * n, MPI_DOUBLE, 
-                 0, comm);
+                 0, comm); // send to each process only the part of A which it is responsible for
 
-    double* local_C = (double*)calloc(my_rows * m, sizeof(double));
+    double* local_C = (double*)calloc(my_rows * m, sizeof(double)); // array for local result
 
     for (int i = 0; i < my_rows; i++) {
         for (int k = 0; k < n; k++) {
             double a_val = local_A[i * n + k];
             for (int j = 0; j < m; j++) {
-                local_C[i * m + j] += a_val * flat_B[k * m + j];
+                local_C[i * m + j] += a_val * flat_B[k * m + j]; // actual operation of multiplication
             }
         }
     }
@@ -110,7 +108,6 @@ void parallel_matrix_multiplication(int m, int n, double** A, double** B, double
         int start_ii = ii * base_rows;
         int end_ii = (ii == size - 1) ? m : start_ii + base_rows;
         int rows_ii = end_ii - start_ii; 
-        
         sendcounts[ii] = rows_ii * m; 
         displs[ii] = (ii == 0) ? 0 : displs[ii-1] + sendcounts[ii-1];
     }
@@ -119,12 +116,12 @@ void parallel_matrix_multiplication(int m, int n, double** A, double** B, double
 
     MPI_Allgatherv(local_C, my_rows * m, MPI_DOUBLE,
                 flat_C, sendcounts, displs, MPI_DOUBLE,
-                comm);
+                comm); // gather of C
 
 
     for (int i = 0; i < m; i++) {
         for (int j = 0; j < m; j++) {
-            C[i][j] = flat_C[i * m + j];
+            C[i][j] = flat_C[i * m + j]; // C reconstruction
         }
     }
     if(rank==0) free(flat_A);
@@ -147,7 +144,7 @@ void QR_Decomposition(size_t n, double **A, double **Q, double **R, MPI_Comm com
     size_t offset = n / size;
     size_t start = rank * offset;
     size_t end = (rank == size - 1) ? n : start + offset; // the last one ends at n if the size is not a multiplo
-    size_t rows_per_proc = end - start; 
+    size_t rows_per_proc = end - start; // standard hyperparameters for parallelization
 
     int *recvcounts = malloc(size * sizeof(int));
     int *displs = malloc(size * sizeof(int));
@@ -176,20 +173,20 @@ void QR_Decomposition(size_t n, double **A, double **Q, double **R, MPI_Comm com
         for(size_t j = 0; j < i; j++){
             double dot = 0.0;
             for(size_t k = start; k < end; k++){
-                dot += Q[k][j] * A[k][i];
+                dot += Q[k][j] * A[k][i]; // CSG algorithm
             }
             local_dots[j] = dot;
         }
 
         if (i > 0) {
-            MPI_Allreduce(local_dots, global_dots, i, MPI_DOUBLE, MPI_SUM, comm);
+            MPI_Allreduce(local_dots, global_dots, i, MPI_DOUBLE, MPI_SUM, comm); // get the dots computed from all nodes
         }
 
         for(size_t j = 0; j < i; j++){
             double alpha = global_dots[j];
             R[j][i] = alpha; 
             for (size_t k = start; k < end; k++)
-                u_local[k - start] -= alpha * Q[k][j];
+                u_local[k - start] -= alpha * Q[k][j]; // CSG algorithm
         }
 
         double local_norm = 0.0;
@@ -197,7 +194,7 @@ void QR_Decomposition(size_t n, double **A, double **Q, double **R, MPI_Comm com
             local_norm += u_local[k] * u_local[k];
 
         double global_norm = 0.0;
-        MPI_Allreduce(&local_norm, &global_norm, 1, MPI_DOUBLE, MPI_SUM, comm);
+        MPI_Allreduce(&local_norm, &global_norm, 1, MPI_DOUBLE, MPI_SUM, comm); // sum the computed norms
 
         double norm = sqrt(global_norm);
 
@@ -214,10 +211,10 @@ void QR_Decomposition(size_t n, double **A, double **Q, double **R, MPI_Comm com
 
         MPI_Allgatherv(Q_i_col, rows_per_proc, MPI_DOUBLE, 
             recv_col_buffer, recvcounts, displs, 
-            MPI_DOUBLE, comm);
+            MPI_DOUBLE, comm); // gather Q cols computed from all processes
 
 
-        for (int r = 0; r < size; r++) {
+        for (int r = 0; r < size; r++) { // reconstruction of Q
             int displacement = displs[r]; // displacement of Rth node
             int elements_count = recvcounts[r]; // number of elements of Rth node
 
@@ -368,6 +365,7 @@ void QR_SVD(double** A, int M, int N, MPI_Comm comm){
         free_matrix(Anew, N);
     }
 
+    // print functions, rank == 10000 invalidated the print (set == 0 to show results in stdout)
     if(rank == 10000){
         int mat_rank = min(N, M);
         printf("Eigenvalues:\n");
@@ -432,7 +430,7 @@ int main(int argc, char* argv[]){
     MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
 
     if(my_rank == 0){
-        dataset = fopen("./svd-parallel/dataset_same_r_c.txt", "r");
+        dataset = fopen("./svd-parallel/dataset.txt", "r");
         results = fopen("./svd-parallel/QR_results/same_r_c/results_parallel_2x8_scatter_excl.txt", "w");
 
         fprintf(results, "elements time\n");
