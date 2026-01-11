@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
 
     // Input is read only by rank 0
     if (rank == 0) {
-        file = fopen("dataset_same_r_c.txt", "r");
+        file = fopen("../dataset.txt", "r");
         if(file == NULL) {
             printf("Error opening file!\n");
             MPI_Abort(MPI_COMM_WORLD, 1);
