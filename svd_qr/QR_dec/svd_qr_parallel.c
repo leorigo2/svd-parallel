@@ -6,9 +6,9 @@
 #define min(a, b) ((a) < (b) ? (a) : (b))
 
 void read_matrix(FILE* file, int R, int C, double** matrix){ 
-    """
+    /*
     Read all elements of a matrix from our dataset file
-    """
+    */
     for (int i = 0; i < R; i++) {
         for (int j = 0; j < C; j++) {
             fscanf(file, "%lf", &matrix[i][j]);
@@ -17,9 +17,9 @@ void read_matrix(FILE* file, int R, int C, double** matrix){
 }
 
 double** alloc_matrix(int rows, int cols) {
-    """
+    /*
     Dinamically allocate a matrix R*C
-    """
+    */
     double **matrix = (double **)malloc(rows * sizeof(double*));
 
     for (int i = 0; i < rows; i++) {
@@ -29,9 +29,9 @@ double** alloc_matrix(int rows, int cols) {
 }
 
 void free_matrix(double** matrix, int R) {
-    """
+    /*
     Free the memory allocated for a matrix
-    """
+    */
     if (matrix != NULL) {
         for (int i = 0; i < R; i++) {
             free(matrix[i]);
@@ -41,9 +41,9 @@ void free_matrix(double** matrix, int R) {
 }
 
 void parallel_matrix_multiplication(int m, int n, double** A, double** B, double** C, MPI_Comm comm) {
-    """
+    /*
     Parallelize matrix-matrix multiplication using MPI
-    """
+    */
     int rank, size;
     MPI_Comm_rank(comm, &rank);
     MPI_Comm_size(comm, &size);
