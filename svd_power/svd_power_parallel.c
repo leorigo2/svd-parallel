@@ -84,16 +84,15 @@ int main(int argc, char *argv[]) {
 
         int local_rows = sendcounts[rank] / N;
         double *A_local = malloc(local_rows * N * sizeof(double));
-
+        // Sending local rows for each process
         MPI_Scatterv(A, sendcounts, displs, MPI_DOUBLE, A_local, local_rows * N, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
         if (rank == 0) {
             free(A);
             A = NULL;
         }
-
-        // printf("[Rank %d] local_rows = %d\n", rank, local_rows);
-
+        
+        // Waiting to ensure correct time for benchmarking
         MPI_Barrier(MPI_COMM_WORLD);
         double t0 = MPI_Wtime();
 
@@ -116,7 +115,7 @@ int main(int argc, char *argv[]) {
         printf("Total execution time: %f s\n", total_time);
         fclose(file);
     }
-
+    
     MPI_Finalize();
     return 0;
 }
@@ -126,7 +125,7 @@ double norm2(double *x, int N) {
 
     for (int i = 0; i < N; i++)
         sum += x[i] * x[i];
-
+    
     return sqrt(sum);
 }
 
@@ -207,11 +206,13 @@ void power_svd(double *A_local, int M, int N, int local_rows, MPI_Comm comm) {
         printf("Computing %d singular values\n", K);
     }
 
+    // Cycle for number of Singular Values of A, being MIN(M,N)
     for (int k = 0; k < K; k++) {
         double *v = malloc(N * sizeof(double));
         for (int i = 0; i < N; i++)
             v[i] = rand()/(double)RAND_MAX;  // random vector initialization
 
+        // Start of Power Iteration with local variables
         double lambda = power_iteration(A_local, v, local_rows, N, comm);
         double sigma = sqrt(lambda);
 
@@ -225,8 +226,9 @@ void power_svd(double *A_local, int M, int N, int local_rows, MPI_Comm comm) {
         compute_u(A_local, v, u_local, local_rows, N, sigma);
 
         if (rank == 0)
-            printf("sigma_%d = %.8e\n", k+1, sigma);
-
+            printf("sigma_%d = %.8e\n", k+1, sigma);ù
+        
+        // A_local = A_local-sigma*u_local*v^T, deflation step to compute next Singular Values
         deflate(A_local, u_local, v, sigma, local_rows, N);
 
         free(v);
